@@ -1,0 +1,15 @@
+# Build outputs
+bin/
+obj/
+# IDE / Rider
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+# OS
+.DS_Store
+Thumbs.db
+# Avalonia/ResX cache
+*.resources
+*.axaml.g.cs
