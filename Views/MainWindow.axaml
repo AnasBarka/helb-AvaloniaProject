@@ -10,10 +10,6 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="MyProjectBase">
     
-    <Window.DataContext>
-        <vm:MainWindowViewModel/>
-    </Window.DataContext>
-    
     <Grid RowDefinitions="80,*">
         <Border Grid.Row="0" Background="DeepPink" BorderBrush="Black" BorderThickness="2" CornerRadius="3" Padding="10" Margin="10">
             <!-- TOP row -->
@@ -22,6 +18,8 @@
             <Border Grid.Column="0" Grid.Row="0" Background="DarkBlue" BorderBrush="Black" BorderThickness="2" CornerRadius="3" Padding="10" Margin="10">
                 <StackPanel HorizontalAlignment="Center">
                     <Button Background="AliceBlue" Command="{Binding BackToMainCommand}" HorizontalAlignment="Left"> Main </Button>
+                    <Button Content="Import CSV" Command="{Binding ImportCsvCommand}" Margin="0,10,0,0"/>
+                    <Button Content="Export CSV" Command="{Binding ExportCsvCommand}" Margin="0,10,0,0"/>
                 </StackPanel>
             </Border>
             <Border Grid.Column="1" Grid.Row="0" Background="ForestGreen" BorderBrush="Black" BorderThickness="2" CornerRadius="3" Padding="10" Margin="10">
