@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MongoDB.Bson;
 using Avalonia.Controls;
 using MyProjectBase.Helpers;
 using MyProjectBase.Models;
@@ -13,142 +13,148 @@ namespace MyProjectBase.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    // Page actuellement affichée dans l’UI
-    [ObservableProperty] private ViewModelBase _currentPage;
+    // Page UI active
+    [ObservableProperty] 
+    private ViewModelBase _currentPage;
 
-    // Service pour gérer CSV (import/export)
+    // Services applicatifs
     private readonly CsvServices _csvService;
-
-    // Service pour gérer JSON via serveur (API)
     private readonly JSONServices _jsonService;
-    
-    private readonly Window _topLevelWindow;
 
+    // Référence à la fenêtre principale (pour MessageBox)
+    private readonly Window _topLevelWindow;
 
     public MainWindowViewModel(TopLevel topLevel)
     {
-        // Initialisation des services
         _csvService = new CsvServices(topLevel);
         _jsonService = new JSONServices();
         _topLevelWindow = (Window)topLevel;
+        
+        // ✅ Affiche immédiatement la liste avec la bonne commande
+        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand); 
 
-
-        // Chargement des données depuis le serveur au démarrage
+        // Chargement JSON automatique au démarrage
         _ = LoadDataFromServer();
     }
 
-    // Nettoyage de l’ancienne page (bonne pratique MVVM)
     partial void OnCurrentPageChanging(ViewModelBase? oldValue, ViewModelBase? newValue)
     {
         oldValue?.Dispose();
     }
 
-    // Navigation vers page détail
+    // ✅ Navigation vers détails d’un produit
     [RelayCommand]
-    private void GoToDetailsFromChild(ObjectId animalId)
+    private void GoToDetailsFromChild(string productId)
     {
-        CurrentPage = new CollectionDetailsViewModel(animalId);
+        CurrentPage = new CollectionDetailsViewModel(productId);
     }
 
-    // Retour à la page principale
+    // ✅ Retour à la vue collection
     [RelayCommand]
     private void BackToMain()
     {
         CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
     }
 
-    // 🔥 Chargement des données depuis le serveur JSON
     /// <summary>
-    /// Charge les données depuis le serveur JSON (API locale Docker).
-    /// Si aucune donnée n'est trouvée, on affiche un message dans la console
-    /// et on ajoute un élément "placeholder" dans la liste.
+    /// ✅ Charge la liste des produits depuis l’API JSON locale.
+    /// Ajoute un placeholder si le serveur renvoie une liste vide.
     /// </summary>
     private async Task LoadDataFromServer()
     {
-        // ✅ 1. On tente de récupérer la liste depuis l'API JSON
-        var data = await _jsonService.GetStrangeAnimalsAsync();
-
-        // ✅ 2. On vide la collection globale
-        MyGlobals.MyStrangeAnimals.Clear();
-
-        // ✅ 3. Si le serveur renvoie des données → on les ajoute normalement
-        if (data.Count > 0)
+        try
         {
-            foreach (var item in data)
-                MyGlobals.MyStrangeAnimals.Add(item);
-        }
-        else
-        {
-            // ✅ 4. Si l'API est vide → message d’avertissement dans la console
-            Console.WriteLine("⚠ Aucune donnée trouvée sur le serveur JSON (API vide).");
+            var data = await _jsonService.GetProductsAsync();
 
-            // ✅ 5. Ajouter un STRANGE ANIMAL FACTICE pour ne pas laisser l’UI vide
-            MyGlobals.MyStrangeAnimals.Add(new StrangeAnimal
+            MyGlobals.ProductsFish.Clear();
+
+            if (data.Count > 0)
             {
-                Id = ObjectId.GenerateNewId(),
-                Name = "Aucune donnée disponible",
-                Description = "Le serveur JSON n’a retourné aucun élément.",
-                Origin = "Serveur vide",
-                Picture = ImageHelper.LoadFromResource(
-                    new Uri("avares://MyProjectBase/Assets/python.png"))
+                foreach (var p in data)
+                    MyGlobals.ProductsFish.Add(p);
+            }
+            else
+            {
+                Console.WriteLine("⚠ API vide : aucun poisson trouvé.");
+
+                MyGlobals.ProductsFish.Add(new ProductFish
+                {
+                    ID = "N/A",
+                    Name = "Aucun poisson disponible",
+                    Group = "API vide",
+                    Stock = 0,
+                    Price = 0
+                });
+            }
+        }
+        catch (HttpRequestException)
+        {
+            await DialogHelper.ShowError(_topLevelWindow,
+                "Impossible de contacter le serveur JSON.\nAssurez-vous que Docker tourne.");
+
+            MyGlobals.ProductsFish.Clear();
+            MyGlobals.ProductsFish.Add(new ProductFish
+            {
+                ID = "ERR",
+                Name = "Serveur inaccessible",
+                Group = "API DOWN",
+                Stock = 0,
+                Price = 0
             });
         }
+        catch (Exception ex)
+        {
+            await DialogHelper.ShowError(_topLevelWindow,
+                "Erreur inattendue lors du chargement JSON :\n" + ex.Message);
+        }
 
-        // ✅ 6. On met à jour la page affichée dans l’UI (ListView)
+        // ✅ Mise à jour de la page
         CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
     }
 
-    // 🔥 Sauvegarde des données vers le serveur JSON
+    /// <summary>
+    /// ✅ Envoie la liste de produits à l’API JSON.
+    /// </summary>
     [RelayCommand]
-    private async Task SaveDataToServer()
+    private async Task SaveJson()
     {
         try
         {
-            await _jsonService.SetStrangeAnimalsAsync(MyGlobals.MyStrangeAnimals);
-
+            await _jsonService.SetProductsAsync(MyGlobals.ProductsFish.ToList());
             Console.WriteLine("✅ Sauvegarde JSON réussie !");
         }
         catch (HttpRequestException)
         {
-            await DialogHelper.ShowError(_topLevelWindow, 
-                "Impossible de contacter le serveur JSON.\n\nVérifiez que Docker tourne.");
+            await DialogHelper.ShowError(_topLevelWindow,
+                "Impossible de contacter le serveur JSON.\nAssurez-vous que Docker tourne.");
         }
         catch (Exception ex)
         {
-            await DialogHelper.ShowError(_topLevelWindow, 
+            await DialogHelper.ShowError(_topLevelWindow,
                 "Erreur inattendue lors de la sauvegarde JSON :\n" + ex.Message);
         }
     }
 
-    // 🔥 Commande appelée par le bouton "Save JSON"
-    [RelayCommand]
-    private async Task SaveJson()
-    {
-        await SaveDataToServer();
-    }
-
-    // 📥 Import CSV
+    // ✅ Import CSV
     [RelayCommand]
     private async Task ImportCsv()
     {
-        var data = await _csvService.LoadDataAsync();
+        var data = await _csvService.LoadDataAsync<ProductFish>();
 
         if (data.Count == 0)
             return;
 
-        MyGlobals.MyStrangeAnimals.Clear();
+        MyGlobals.ProductsFish.Clear();
+        foreach (var p in data)
+            MyGlobals.ProductsFish.Add(p);
 
-        foreach (var item in data)
-            MyGlobals.MyStrangeAnimals.Add(item);
-
-        // Refresh UI
         CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
     }
 
-    // 📤 Export CSV
+    // ✅ Export CSV
     [RelayCommand]
     private async Task ExportCsv()
     {
-        await _csvService.SaveDataAsync(MyGlobals.MyStrangeAnimals);
+        await _csvService.SaveDataAsync(MyGlobals.ProductsFish.ToList());
     }
 }

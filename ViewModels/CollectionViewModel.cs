@@ -1,37 +1,45 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MongoDB.Bson;
-using MyProjectBase.Helpers;
 using MyProjectBase.Models;
+using MyProjectBase.Helpers;
 
 namespace MyProjectBase.ViewModels;
 
-public partial class CollectionViewModel: ViewModelBase
+public partial class CollectionViewModel : ViewModelBase
 {
-    public IRelayCommand<ObjectId> FromParentCommand { get; set; }
-    public ObservableCollection<StrangeAnimal> MyObservableStrangeAnimals { get; }
-    
+    // Command venant du parent (MainWindowViewModel)
+    public IRelayCommand<string> FromParentCommand { get; set; }
+
+    // Collection observable de Products (poissons)
+    public ObservableCollection<ProductFish> ProductsFish { get; }
+
+    // Élément sélectionné dans la liste
     [ObservableProperty] 
-    private StrangeAnimal? _selectedAnimal;
-    
-    public CollectionViewModel(IRelayCommand<ObjectId> fromParentCommand)
+    private ProductFish? _selectedProduct;
+
+    public CollectionViewModel(IRelayCommand<string> fromParentCommand)
     {
         FromParentCommand = fromParentCommand;
-        
-        MyObservableStrangeAnimals = [];
-            
-        foreach (var animal in MyGlobals.MyStrangeAnimals)
+
+        ProductsFish = new ObservableCollection<ProductFish>();
+
+        // Charger tous les produits depuis MyGlobals
+        foreach (var p in MyGlobals.ProductsFish)
         {
-            MyObservableStrangeAnimals.Add(new StrangeAnimal
-            {
-                Id = animal.Id,
-                Name = animal.Name,
-                Description = animal.Description,
-                Origin = animal.Origin,
-                Picture = animal.Picture
-            });
+            ProductsFish.Add(p);
+            /* Equivalent de;
+             * ProductsFish.Add(new ProductFish
+               {
+                   ID = p.ID,
+                   Name = p.Name,
+                   Group = p.Group,
+                   Stock = p.Stock,
+                   Price = p.Price
+               });
+             */
         }
     }
 }

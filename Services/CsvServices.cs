@@ -6,18 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using MongoDB.Bson;
 using MyProjectBase.Models;
 
 namespace MyProjectBase.Services;
 
 /// <summary>
 /// Service responsable du chargement et de la sauvegarde d'un fichier CSV.
-/// Utilise TopLevel pour ouvrir les fenêtres 'Ouvrir fichier' et 'Enregistrer sous'.
+/// Compatible avec n'importe quel modèle (Product, etc.)
 /// </summary>
 public class CsvServices
 {
-    // Référence vers la fenêtre Avalonia (TopLevel) pour ouvrir les boîtes de dialogue
     private readonly TopLevel _topLevel;
 
     public CsvServices(TopLevel topLevel)
@@ -26,78 +24,57 @@ public class CsvServices
     }
 
     /// <summary>
-    /// Charge un fichier CSV et renvoie une liste de StrangeAnimal.
+    /// Charge un fichier CSV et convertit chaque ligne en T (ex : Product)
     /// </summary>
-    public async Task<List<StrangeAnimal>> LoadDataAsync()
+    public async Task<List<T>> LoadDataAsync<T>() where T : new()
     {
-        var list = new List<StrangeAnimal>();
+        var list = new List<T>();
 
-        // Ouvre une fenêtre "Sélectionner un fichier"
         var files = await _topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Sélectionnez un fichier CSV",
             AllowMultiple = false
         });
 
-        // Si on n’a rien sélectionné → renvoie liste vide
-        if (files.Count <= 0) return list;
+        if (files.Count == 0)
+            return list;
 
-        // Ouvre et lit le fichier en UTF‑8
         await using var stream = await files[0].OpenReadAsync();
         using var reader = new StreamReader(stream, Encoding.UTF8);
 
-        var lines = new List<string?>();
-
-        // Lit toutes les lignes
+        var lines = new List<string>();
         while (!reader.EndOfStream)
             lines.Add(await reader.ReadLineAsync());
 
-        // Si le fichier est vide → renvoie liste vide
-        if (lines.Count == 0) return list;
+        if (lines.Count == 0)
+            return list;
 
-        // Première ligne = les noms des colonnes
         var headers = lines[0].Split(';');
+        var properties = typeof(T).GetProperties();
 
-        // Récupère les propriétés de la classe StrangeAnimal
-        var properties = typeof(StrangeAnimal).GetProperties();
-
-        // Pour chaque ligne du fichier (à partir de la 2e)
-        for (var i = 1; i < lines.Count; i++)
+        for (int i = 1; i < lines.Count; i++)
         {
-            var obj = new StrangeAnimal();
+            var obj = new T();
             var values = lines[i]?.Split(';');
 
-            if (values != null)
+            if (values == null) continue;
+
+            for (int j = 0; j < headers.Length && j < values.Length; j++)
             {
-                // Parcourt toutes les colonnes
-                for (var j = 0; j < headers.Length && j < values.Length; j++)
+                var property = properties.FirstOrDefault(p =>
+                    p.Name.Equals(headers[j], StringComparison.OrdinalIgnoreCase));
+
+                if (property == null) continue;
+                if (string.IsNullOrWhiteSpace(values[j])) continue;
+
+                try
                 {
-                    // Trouve la propriété correspondante à l’en-tête CSV
-                    var property = properties.FirstOrDefault(p =>
-                        p.Name.Equals(headers[j], StringComparison.OrdinalIgnoreCase));
-
-                    // Si la colonne ne correspond à aucune propriété → ignore
-                    if (property == null || string.IsNullOrWhiteSpace(values[j])) continue;
-
-                    try
-                    {
-                        // Cas spécial : ObjectId de MongoDB
-                        if (property.PropertyType == typeof(ObjectId))
-                        {
-                            var objectIdValue = new ObjectId(values[j]);
-                            property.SetValue(obj, objectIdValue);
-                        }
-                        else
-                        {
-                            // Convertit string → bon type (int, string, bool…)
-                            var value = Convert.ChangeType(values[j], property.PropertyType);
-                            property.SetValue(obj, value);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidOperationException(ex.Message);
-                    }
+                    var convertedValue = Convert.ChangeType(values[j], property.PropertyType);
+                    property.SetValue(obj, convertedValue);
+                }
+                catch
+                {
+                    // Ignore les erreurs de conversion
                 }
             }
 
@@ -107,38 +84,35 @@ public class CsvServices
         return list;
     }
 
-    ///
+    /// <summary>
     /// Sauvegarde une liste d'objets dans un fichier CSV.
-    /// 
+    /// </summary>
     public async Task SaveDataAsync<T>(List<T> data)
     {
         var csv = new StringBuilder();
         var properties = typeof(T).GetProperties();
 
-        // Ligne des en-têtes (nom des propriétés)
+        // En-têtes
         csv.AppendLine(string.Join(";", properties.Select(p => p.Name)));
 
-        // Chaque ligne du CSV
+        // Lignes
         foreach (var item in data)
         {
-            var values = properties.Select(p => p.GetValue(item)?.ToString() ?? string.Empty);
+            var values = properties.Select(p => p.GetValue(item)?.ToString() ?? "");
             csv.AppendLine(string.Join(";", values));
         }
 
-        // Fenêtre "où enregistrer le fichier ?"
         var file = await _topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Enregistrer le fichier CSV",
-            SuggestedFileName = "data.csv"
+            Title = "Enregistrer fichier CSV",
+            SuggestedFileName = "Products.csv"
         });
 
         if (file != null)
         {
-            await using (var stream = await file.OpenWriteAsync())
-            {
-                using var writer = new StreamWriter(stream, Encoding.UTF8);
-                await writer.WriteAsync(csv.ToString());
-            }
+            await using var stream = await file.OpenWriteAsync();
+            using var writer = new StreamWriter(stream, Encoding.UTF8);
+            await writer.WriteAsync(csv.ToString());
         }
     }
 }

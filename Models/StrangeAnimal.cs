@@ -7,6 +7,7 @@ namespace MyProjectBase.Models;
 
 public class StrangeAnimal
 {
+    /*
     public StrangeAnimal()
     {}
 
@@ -14,5 +15,5 @@ public class StrangeAnimal
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Origin { get; set; } = string.Empty;
-    internal IImage? Picture { get; set; } 
+    internal IImage? Picture { get; set; }*/ 
 }

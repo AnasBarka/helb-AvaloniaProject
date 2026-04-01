@@ -8,43 +8,67 @@
         x:DataType="vm:CollectionViewModel"
         x:Name="Collection">
     
+    <!-- Design uniquement -->
     <Design.DataContext>
         <vm:CollectionViewModel/>
     </Design.DataContext>
     
-<DockPanel Margin="20">
-        <Border Background="AliceBlue" >
+    <DockPanel Margin="20">
+        <Border Background="AliceBlue">
             <ScrollViewer>
-                <ListBox x:Name="Animals" 
-                         ItemsSource="{Binding MyObservableStrangeAnimals}" 
-                         SelectedItem="{Binding SelectedAnimal}"
+                
+                <ListBox x:Name="ProductsList"
+                         ItemsSource="{Binding ProductsFish}"
+                         SelectedItem="{Binding SelectedProduct}"
                          ScrollViewer.VerticalScrollBarVisibility="Visible"
                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="Gainsboro" BorderBrush="Black" BorderThickness="2" CornerRadius="3" Padding="10" Margin="10">
+                            
+                            <Border Background="Gainsboro"
+                                    BorderBrush="Black"
+                                    BorderThickness="2"
+                                    CornerRadius="3"
+                                    Padding="10"
+                                    Margin="10">
+                                
                                 <Grid ColumnDefinitions="*,*,*">
-                                    <Panel >
-                                        <Rectangle Height="100" Width="100" Fill="LightGray"></Rectangle>
-                                        <Image Margin="20" Height="200" Width="200" 
-                                               Stretch="UniformToFill"
-                                               Source="{Binding Picture}"  />
+                                    
+                                    <!-- IMAGE (optionnel pour Product) -->
+                                    <Panel>
+                                        <Rectangle Height="100" Width="100" Fill="LightGray"/>
                                     </Panel>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                        <TextBlock Text="{Binding Id, StringFormat=I : {0}}"/>
+
+                                    <!-- INFOS PRODUIT -->
+                                    <StackPanel Grid.Column="1"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center">
+                                        
+                                        <TextBlock Text="{Binding ID, StringFormat=ID : {0}}"/>
                                         <TextBlock Text="{Binding Name, StringFormat=Nom : {0}}"/>
-                                        <TextBlock Text="{Binding Description, StringFormat=Description : {0} }"/>
-                                        <TextBlock Text="{Binding Origin, StringFormat=Origine : {0} }"/>
+                                        <TextBlock Text="{Binding Group, StringFormat=Groupe : {0}}"/>
+                                        <TextBlock Text="{Binding Stock, StringFormat=Stock : {0}}"/>
+                                        <TextBlock Text="{Binding Price, StringFormat=Prix : {0} €}"/>
+                                        
                                     </StackPanel>
-                                    <Button Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Content="Action"
-                                        Command="{Binding DataContext.FromParentCommand, ElementName=Collection}"
-                                        CommandParameter="{Binding Id}" />
+
+                                    <!-- BOUTON ACTION -->
+                                    <Button Grid.Column="2"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Content="Détails"
+                                            Command="{Binding DataContext.FromParentCommand, ElementName=Collection}"
+                                            CommandParameter="{Binding ID}" />
                                 </Grid>
+                                
                             </Border>
+                            
                         </DataTemplate>
                     </ListBox.ItemTemplate>
+                    
                 </ListBox>
+                
             </ScrollViewer>
         </Border>
     </DockPanel>

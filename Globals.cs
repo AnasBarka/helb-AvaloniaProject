@@ -6,5 +6,5 @@ namespace MyProjectBase;
 
 public static class MyGlobals
 {
-    public static List<StrangeAnimal> MyStrangeAnimals { get;} = [];
+    public static List<ProductFish> ProductsFish { get;} = [];
 }
