@@ -71,10 +71,7 @@
                     <Button Content="📤 Export CSV"
                             Height="40"
                             Command="{Binding ExportCsvCommand}"/>
-
-                    <Button Content="💾 Save JSON"
-                            Height="40"
-                            Command="{Binding SaveJsonCommand}"/>
+                    
                 </StackPanel>
 
             </Border>

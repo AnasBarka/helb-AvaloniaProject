@@ -175,6 +175,9 @@ public partial class MainWindowViewModel : ViewModelBase
         foreach (var p in data)
             MyGlobals.ProductsFish.Add(p);
 
+        // Sauvegarde JSON automatique
+        await _jsonService.SetProductsAsync(MyGlobals.ProductsFish.ToList());
+
         CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
     }
 
