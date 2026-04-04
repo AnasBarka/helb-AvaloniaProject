@@ -60,6 +60,9 @@ public partial class MainWindowViewModel : ViewModelBase
     /// ✅ Charge la liste des produits depuis l’API JSON locale.
     /// Ajoute un placeholder si le serveur renvoie une liste vide.
     /// </summary>
+    
+
+
     private async Task LoadDataFromServer()
     {
         try
@@ -71,7 +74,26 @@ public partial class MainWindowViewModel : ViewModelBase
             if (data.Count > 0)
             {
                 foreach (var p in data)
+                {
+                    // ✅ Charger l'image depuis PicturePath
+                    if (!string.IsNullOrWhiteSpace(p.PicturePath))
+                    {
+                        try
+                        {
+                            // ✅ Image locale de type AVARES
+                            if (p.PicturePath.StartsWith("avares://"))
+                            {
+                                p.Picture = ImageHelper.LoadFromResource(new Uri(p.PicturePath));
+                            }
+                        }
+                        catch
+                        {
+                            p.Picture = null; // Pas d'image → pas de crash
+                        }
+                    }
+
                     MyGlobals.ProductsFish.Add(p);
+                }
             }
             else
             {
@@ -83,14 +105,18 @@ public partial class MainWindowViewModel : ViewModelBase
                     Name = "Aucun poisson disponible",
                     Group = "API vide",
                     Stock = 0,
-                    Price = 0
+                    Price = 0,
+                    Description = "Aucune donnée disponible",
+                    PicturePath = "avares://MyProjectBase/Assets/placeholder.png",
+                    Picture = ImageHelper.LoadFromResource(
+                        new Uri("avares://MyProjectBase/Assets/placeholder.png"))
                 });
             }
         }
         catch (HttpRequestException)
         {
             await DialogHelper.ShowError(_topLevelWindow,
-                "Impossible de contacter le serveur JSON.\nAssurez-vous que Docker tourne.");
+                "Impossible de contacter le serveur JSON.\nAssurez-vous que le serveur est disponible.");
 
             MyGlobals.ProductsFish.Clear();
             MyGlobals.ProductsFish.Add(new ProductFish
@@ -111,6 +137,7 @@ public partial class MainWindowViewModel : ViewModelBase
         // ✅ Mise à jour de la page
         CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
     }
+
 
     /// <summary>
     /// ✅ Envoie la liste de produits à l’API JSON.

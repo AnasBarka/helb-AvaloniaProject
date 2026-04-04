@@ -16,9 +16,9 @@ namespace MyProjectBase.Services
             ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
         });
 
-        // ✅ Adresse du serveur JSON Docker
+        //  Adresse du serveur JSON Docker
         private const string BaseUrl = "http://185.157.245.38:8080/json";
-        // ✅ Charge la liste de produits depuis le serveur
+        //  Charge la liste de produits depuis le serveur
         internal async Task<List<ProductFish>> GetProductsAsync()
         {
             const string url = $"{BaseUrl}?FileName=ProductFish.json";

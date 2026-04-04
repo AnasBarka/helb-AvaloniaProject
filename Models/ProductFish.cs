@@ -12,5 +12,11 @@ public class ProductFish
     public string Name { get; set; } = string.Empty;  
     public int Stock { get; set; }  
     public int Price { get; set; }
+    public string Description { get; set; } = string.Empty;
+    
+    // Chemin sérialisé dans le JSON / CSV (format avares://)
+    public string? PicturePath { get; set;}
+
+    // Image chargée dans l'app (non sérialisable)
     internal IImage? Picture { get; set; }
 }

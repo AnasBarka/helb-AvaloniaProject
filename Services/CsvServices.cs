@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using MyProjectBase.Models;
+using MyProjectBase.Helpers; // ✅ Pour ImageHelper
 
 namespace MyProjectBase.Services;
 
 /// <summary>
 /// Service responsable du chargement et de la sauvegarde d'un fichier CSV.
-/// Compatible avec n'importe quel modèle (Product, etc.)
+/// Compatible avec n'importe quel modèle (ProductFish, etc.)
 /// </summary>
 public class CsvServices
 {
@@ -24,7 +25,7 @@ public class CsvServices
     }
 
     /// <summary>
-    /// Charge un fichier CSV et convertit chaque ligne en T (ex : Product)
+    /// Charge un fichier CSV et convertit chaque ligne en T (ex : ProductFish)
     /// </summary>
     public async Task<List<T>> LoadDataAsync<T>() where T : new()
     {
@@ -44,37 +45,80 @@ public class CsvServices
 
         var lines = new List<string>();
         while (!reader.EndOfStream)
-            lines.Add(await reader.ReadLineAsync());
+            lines.Add(await reader.ReadLineAsync() ?? "");
 
         if (lines.Count == 0)
             return list;
 
-        var headers = lines[0].Split(';');
+        var headers = lines[0].Split(';', StringSplitOptions.TrimEntries);
         var properties = typeof(T).GetProperties();
 
         for (int i = 1; i < lines.Count; i++)
         {
-            var obj = new T();
-            var values = lines[i]?.Split(';');
+            if (string.IsNullOrWhiteSpace(lines[i]))
+                continue;
 
-            if (values == null) continue;
+            var obj = new T();
+            var values = lines[i].Split(';');
 
             for (int j = 0; j < headers.Length && j < values.Length; j++)
             {
-                var property = properties.FirstOrDefault(p =>
-                    p.Name.Equals(headers[j], StringComparison.OrdinalIgnoreCase));
+                var header = headers[j];
+                var rawValue = values[j].Trim().Trim('"');
+                if (string.IsNullOrWhiteSpace(header))
+                    continue;
 
-                if (property == null) continue;
-                if (string.IsNullOrWhiteSpace(values[j])) continue;
+                var property = properties.FirstOrDefault(p =>
+                    p.Name.Equals(header, StringComparison.OrdinalIgnoreCase));
+
+                if (property == null)
+                    continue;
+
+                // ❌ Ne jamais convertir Picture (IImage)
+                if (property.PropertyType.FullName!.Contains("Avalonia"))
+                    continue;
+
+                if (string.IsNullOrWhiteSpace(rawValue))
+                    continue;
 
                 try
                 {
-                    var convertedValue = Convert.ChangeType(values[j], property.PropertyType);
+                    object? convertedValue;
+
+                    if (property.PropertyType == typeof(int))
+                    {
+                        convertedValue = int.TryParse(rawValue, out var n) ? n : 0;
+                    }
+                    else if (property.PropertyType == typeof(string))
+                    {
+                        convertedValue = rawValue;
+                    }
+                    else
+                    {
+                        convertedValue = Convert.ChangeType(rawValue, property.PropertyType);
+                    }
+
                     property.SetValue(obj, convertedValue);
                 }
                 catch
                 {
-                    // Ignore les erreurs de conversion
+                    // ignore
+                }
+            }
+
+            // ✅✅ ✅ CHARGER L’IMAGE SI T == ProductFish
+            if (obj is ProductFish fish)
+            {
+                if (!string.IsNullOrWhiteSpace(fish.PicturePath))
+                {
+                    try
+                    {
+                        fish.Picture = ImageHelper.LoadFromResource(new Uri(fish.PicturePath));
+                    }
+                    catch
+                    {
+                        fish.Picture = null;
+                    }
                 }
             }
 
@@ -85,20 +129,22 @@ public class CsvServices
     }
 
     /// <summary>
-    /// Sauvegarde une liste d'objets dans un fichier CSV.
+    /// Sauvegarde une liste d'objets (ProductFish) dans un CSV
     /// </summary>
     public async Task SaveDataAsync<T>(List<T> data)
     {
         var csv = new StringBuilder();
         var properties = typeof(T).GetProperties();
 
-        // En-têtes
+        // ✅ En-têtes
         csv.AppendLine(string.Join(";", properties.Select(p => p.Name)));
 
-        // Lignes
+        // ✅ Lignes
         foreach (var item in data)
         {
-            var values = properties.Select(p => p.GetValue(item)?.ToString() ?? "");
+            var values = properties.Select(p =>
+                p.GetValue(item)?.ToString() ?? "");
+
             csv.AppendLine(string.Join(";", values));
         }
 

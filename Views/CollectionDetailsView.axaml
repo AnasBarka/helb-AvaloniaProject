@@ -1,54 +1,93 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MyProjectBase.ViewModels"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
-             d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MyProjectBase.Views.CollectionDetailsView"
              x:DataType="vm:CollectionDetailsViewModel">
 
-    <!-- DataContext utilisé seulement en mode design -->
     <Design.DataContext>
-        <vm:CollectionDetailsViewModel/>
+        <vm:CollectionDetailsViewModel />
     </Design.DataContext>
 
-    <StackPanel VerticalAlignment="Top" Margin="10">
-        
-        <Border Background="LightBlue"
-                BorderBrush="Black"
-                BorderThickness="2"
-                CornerRadius="5"
-                Padding="10">
+    <!-- ✅ Scroll = RESPONSIVE -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-            <StackPanel Orientation="Vertical" Spacing="10">
+        <!-- ✅ Conteneur principal -->
+        <StackPanel Margin="20"
+                    HorizontalAlignment="Center"
+                    MaxWidth="550"
+                    Spacing="25">
 
-                <!-- Nom du produit / poisson -->
+            <!-- ✅ Image du poisson -->
+            <Border Width="260"
+                    Height="260"
+                    CornerRadius="25"
+                    Background="#DFF3F9"
+                    ClipToBounds="True"
+                    HorizontalAlignment="Center"
+                    BoxShadow="0 10 25 #00000033">
+                
+                <Image Source="{Binding MyFish.Picture}"
+                       Stretch="UniformToFill"/>
+            </Border>
+
+            <!-- ✅ Nom + prix -->
+            <StackPanel HorizontalAlignment="Center"
+                        Spacing="8">
+
                 <TextBlock Text="{Binding MyFish.Name}"
-                           FontSize="24"
+                           FontSize="30"
                            FontWeight="Bold"
-                           Margin="0 0 0 10" />
+                           Foreground="#023E8A"/>
 
-                <!-- Groupe -->
-                <TextBlock Text="{Binding MyFish.Group, StringFormat='Groupe : {0}'}"
-                           FontSize="18"/>
-
-                <!-- Identifiant -->
-                <TextBlock Text="{Binding MyFish.ID, StringFormat='Identifiant : {0}'}"
-                           FontSize="18"/>
-
-                <!-- Stock -->
-                <TextBlock Text="{Binding MyFish.Stock, StringFormat='Stock : {0}'}"
-                           FontSize="18"/>
-
-                <!-- Prix -->
-                <TextBlock Text="{Binding MyFish.Price, StringFormat='Prix : {0} €'}"
-                           FontSize="18"/>
-
+                <TextBlock Text="{Binding MyFish.Price, StringFormat=💰 {0} €}"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           Foreground="#0096C7"/>
             </StackPanel>
 
-        </Border>
+            <!-- ✅ Carte détails -->
+            <Border Background="White"
+                    Padding="25"
+                    CornerRadius="20"
+                    BoxShadow="0 6 20 #00000022">
 
-    </StackPanel>
+                <StackPanel Spacing="14">
+
+                    <TextBlock Text="{Binding MyFish.Group, StringFormat=🌊 Groupe : {0}}"
+                               FontSize="17"
+                               Foreground="#595959"/>
+
+                    <TextBlock Text="{Binding MyFish.ID, StringFormat=🆔 ID : {0}}"
+                               FontSize="17"
+                               Foreground="#595959"/>
+
+                    <TextBlock Text="{Binding MyFish.Stock, StringFormat=📦 Stock : {0}}"
+                               FontSize="17"
+                               Foreground="#595959"/>
+
+                    <TextBlock Text="Description"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="#023E8A"
+                               Margin="0 10 0 0"/>
+
+                    <Border Background="#F6FBFF"
+                            CornerRadius="12"
+                            Padding="12"
+                            BoxShadow="0 3 10 #00000015">
+
+                        <TextBlock Text="{Binding MyFish.Description}"
+                                   TextWrapping="Wrap"
+                                   FontSize="15"
+                                   Foreground="#333"/>
+                    </Border>
+
+                </StackPanel>
+
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
 
 </UserControl>

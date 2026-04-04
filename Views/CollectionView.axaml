@@ -1,75 +1,116 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:MyProjectBase.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="MyProjectBase.Views.CollectionView"
-        x:DataType="vm:CollectionViewModel"
-        x:Name="Collection">
-    
-    <!-- Design uniquement -->
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MyProjectBase.ViewModels"
+             x:Class="MyProjectBase.Views.CollectionView"
+             x:DataType="vm:CollectionViewModel"
+             x:Name="Collection">
+
     <Design.DataContext>
-        <vm:CollectionViewModel/>
+        <vm:CollectionViewModel />
     </Design.DataContext>
-    
-    <DockPanel Margin="20">
-        <Border Background="AliceBlue">
-            <ScrollViewer>
-                
-                <ListBox x:Name="ProductsList"
-                         ItemsSource="{Binding ProductsFish}"
-                         SelectedItem="{Binding SelectedProduct}"
-                         ScrollViewer.VerticalScrollBarVisibility="Visible"
-                         ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                    
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            
-                            <Border Background="Gainsboro"
-                                    BorderBrush="Black"
-                                    BorderThickness="2"
-                                    CornerRadius="3"
-                                    Padding="10"
-                                    Margin="10">
+
+    <!-- ✅ Layout principal -->
+    <Border Margin="20"
+            Background="#F0F8FF"
+            CornerRadius="20"
+            Padding="20"
+            BoxShadow="0 4 25 #00000022">
+
+        <!-- ✅ Scroll responsive -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+            <!-- ✅ LISTE des produits -->
+            <ListBox ItemsSource="{Binding ProductsFish}"
+                     SelectedItem="{Binding SelectedProduct}"
+                     BorderThickness="0"
+                     Background="Transparent">
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+
+                        <!-- ✅ CARTE PRODUIT (responsive & moderne) -->
+                        <Border Background="White"
+                                CornerRadius="18"
+                                Padding="15"
+                                Margin="0 0 0 20"
+                                BoxShadow="0 4 15 #00000033">
+
+                            <Grid ColumnDefinitions="Auto,*,Auto"
+                                  VerticalAlignment="Center">
+
+                                <!-- ✅ IMAGE carrée / centrée / propre -->
                                 
-                                <Grid ColumnDefinitions="*,*,*">
-                                    
-                                    <!-- IMAGE (optionnel pour Product) -->
-                                    <Panel>
-                                        <Rectangle Height="100" Width="100" Fill="LightGray"/>
-                                    </Panel>
+                                <Border Width="120"
+                                        Height="120"
+                                        CornerRadius="12"
+                                        Background="#E3F6FF"
+                                        ClipToBounds="True">
 
-                                    <!-- INFOS PRODUIT -->
-                                    <StackPanel Grid.Column="1"
-                                                VerticalAlignment="Center"
-                                                HorizontalAlignment="Center">
-                                        
-                                        <TextBlock Text="{Binding ID, StringFormat=ID : {0}}"/>
-                                        <TextBlock Text="{Binding Name, StringFormat=Nom : {0}}"/>
-                                        <TextBlock Text="{Binding Group, StringFormat=Groupe : {0}}"/>
-                                        <TextBlock Text="{Binding Stock, StringFormat=Stock : {0}}"/>
-                                        <TextBlock Text="{Binding Price, StringFormat=Prix : {0} €}"/>
-                                        
-                                    </StackPanel>
+                                    <Image Source="{Binding Picture}"
+                                           Stretch="UniformToFill" />
+                                </Border>
 
-                                    <!-- BOUTON ACTION -->
-                                    <Button Grid.Column="2"
-                                            HorizontalAlignment="Center"
+
+                                <!-- ✅ INFO PRODUIT -->
+                                <StackPanel Grid.Column="1"
+                                            Margin="20,0"
                                             VerticalAlignment="Center"
-                                            Content="Détails"
-                                            Command="{Binding DataContext.FromParentCommand, ElementName=Collection}"
-                                            CommandParameter="{Binding ID}" />
-                                </Grid>
-                                
-                            </Border>
-                            
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    
-                </ListBox>
-                
-            </ScrollViewer>
-        </Border>
-    </DockPanel>
+                                            Spacing="6">
+
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="#023E8A"/>
+
+                                    <TextBlock Text="{Binding Group}"
+                                               FontSize="14"
+                                               Foreground="#6C757D"/>
+
+                                    <StackPanel Orientation="Horizontal" Spacing="15">
+                                        <TextBlock Text="{Binding Stock, StringFormat=📦 {0}}"
+                                                   Foreground="#495057"/>
+
+                                        <TextBlock Text="{Binding Price, StringFormat=💰 {0} €}"
+                                                   FontWeight="Bold"
+                                                   Foreground="#0077B6"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- ✅ BOUTON "Voir détails" -->
+                                <Button Grid.Column="2"
+                                        Content="Voir"
+                                        Padding="12"
+                                        CornerRadius="10"
+                                        Background="#00B4D8"
+                                        Foreground="White"
+                                        Command="{Binding DataContext.FromParentCommand, ElementName=Collection}"
+                                        CommandParameter="{Binding ID}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+
+                                    <!-- ✅ Effets visuels -->
+                                    <Button.Styles>
+                                        <Style Selector="Button:pointerover">
+                                            <Setter Property="Background" Value="#0096C7"/>
+                                        </Style>
+                                        <Style Selector="Button:pressed">
+                                            <Setter Property="Background" Value="#0077B6"/>
+                                        </Style>
+                                    </Button.Styles>
+
+                                </Button>
+
+                            </Grid>
+
+                        </Border>
+
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+
+            </ListBox>
+
+        </ScrollViewer>
+
+    </Border>
+
 </UserControl>
