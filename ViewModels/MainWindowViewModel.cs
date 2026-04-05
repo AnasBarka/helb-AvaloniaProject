@@ -180,12 +180,17 @@ public partial class MainWindowViewModel : ViewModelBase
 
     // ✅ Export CSV
     [RelayCommand]
-    private async Task ExportCsv()
+    private void ExportCsv()
     {
-        await _csvService.SaveDataAsync(MyGlobals.ProductsFish.ToList());
+        CurrentPage = new ExportPreviewViewModel(
+            MyGlobals.ProductsFish,
+            this,
+            _csvService
+        );
     }
-    
-   
+
+
+
     public async Task DeleteFishAsync(ProductFish fish)
     {
         // On demande confirmation à l'utilisateur

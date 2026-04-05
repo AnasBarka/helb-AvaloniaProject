@@ -1,0 +1,125 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:vm="using:MyProjectBase.ViewModels"
+             x:Class="MyProjectBase.Views.ExportPreviewView"
+             x:DataType="vm:ExportPreviewViewModel">
+
+    
+    <Design.DataContext>
+        <vm:ExportPreviewViewModel/>
+    </Design.DataContext>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="20"
+                    HorizontalAlignment="Center"
+                    MaxWidth="700"
+                    Spacing="20">
+
+            <!-- TITRE -->
+            <TextBlock Text="Prévisualisation de l'Export CSV"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#023E8A"
+                       HorizontalAlignment="Center"/>
+
+            <!-- BOUTON SELECT ALL -->
+            <ToggleButton Content="Tout sélectionner"
+                          Padding="10"
+                          CornerRadius="10"
+                          IsChecked="{Binding IsAllSelected}"
+                          Command="{Binding SelectAllCommand}">
+                <ToggleButton.Styles>
+                    <Style Selector="ToggleButton:checked">
+                        <Setter Property="Background" Value="#023E8A"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </Style>
+                </ToggleButton.Styles>
+            </ToggleButton>
+
+            <!-- LISTE -->
+            <Border Background="White"
+                    CornerRadius="15"
+                    Padding="15"
+                    BoxShadow="0 4 15 #00000022">
+
+                <ListBox ItemsSource="{Binding PreviewList}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+
+                            <Border Margin="5"
+                                    Padding="10"
+                                    CornerRadius="12"
+                                    Background="#F8F9FA">
+
+                                <Grid ColumnDefinitions="Auto,80,*">
+
+                                    <!-- CHECKBOX -->
+                                    <CheckBox Grid.Column="0"
+                                              IsChecked="{Binding IsSelected}"
+                                              VerticalAlignment="Top"
+                                              Margin="0,5,10,0"/>
+
+                                    <!-- IMAGE -->
+                                    <Image Grid.Column="1"
+                                           Width="70"
+                                           Height="70"
+                                           Source="{Binding Fish.Picture}"
+                                           Stretch="UniformToFill"
+                                           Margin="0,0,10,0"/>
+
+                                    <!-- INFOS -->
+                                    <StackPanel Grid.Column="2" Spacing="5">
+
+                                        <TextBlock Text="{Binding Fish.Name}"
+                                                   FontWeight="Bold"/>
+
+                                        <TextBlock Text="{Binding Fish.Group}"
+                                                   Foreground="Gray"/>
+
+                                        <TextBlock Text="{Binding Fish.Price, StringFormat=💰 {0} €}"/>
+
+                                    </StackPanel>
+
+                                </Grid>
+
+                            </Border>
+
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+
+            <!-- ACTIONS -->
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="20">
+
+                <TextBlock FontWeight="Bold"
+                           FontSize="16"
+                           Text="{Binding SelectedCount, StringFormat=Sélectionné ({0})}"/>
+
+                <Button Content="Annuler"
+                        Background="#6C757D"
+                        Foreground="White"
+                        Padding="12 8"
+                        CornerRadius="10"
+                        Command="{Binding CancelCommand}"/>
+
+                <Button Content="Exporter"
+                        Background="#0077B6"
+                        Foreground="White"
+                        Padding="12 8"
+                        CornerRadius="10"
+                        IsEnabled="{Binding CanExport}"
+                        Command="{Binding ConfirmExportCommand}"/>
+
+            </StackPanel>
+
+        </StackPanel>
+
+    </ScrollViewer>
+</UserControl>

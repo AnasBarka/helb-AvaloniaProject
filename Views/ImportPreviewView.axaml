@@ -67,10 +67,7 @@
                         </Style>
                     </ToggleButton.Styles>
                 </ToggleButton>
-
-                <Button Content="Conflits"
-                        Padding="10"
-                        CornerRadius="10"/>
+               
             </StackPanel>
 
             <!-- ✅ LISTE -->
