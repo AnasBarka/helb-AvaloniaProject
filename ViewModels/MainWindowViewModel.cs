@@ -134,8 +134,8 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            await DialogHelper.ShowError(_topLevelWindow,
-                "Erreur inattendue lors du chargement JSON :\n" + ex.Message);
+            Console.WriteLine("Erreur inattendue lors du chargement JSON :\n" + ex.Message);
+
         }
 
         // ✅ Mise à jour de la page

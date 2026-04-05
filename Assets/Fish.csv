@@ -1,0 +1,15 @@
+ID;Group;Name;Stock;Price;PicturePath;Description
+001;Poisson de bassin;Carpe Koï;12;20;avares://OceanStock/Assets/koi.jpg;Poisson d’ornement très apprécié, symbole de chance et de longévité.
+002;Poisson eau douce;Guppy;32;2;avares://OceanStock/Assets/guppy.jpg;Petit poisson coloré facile à élever, idéal pour débutants.
+003;Poisson tropical;Néon Bleu;45;3;avares://OceanStock/Assets/neon_bleu.jpg;Poisson tropical lumineux connu pour sa bande bleue fluorescente.
+004;Poisson tropical;Discus;6;30;avares://OceanStock/Assets/discus.jpg;Poisson d’eau chaude prestigieux, très apprécié en aquariophilie.
+005;Poisson eau de mer;Poisson clown;15;12;avares://OceanStock/Assets/clownfish.jpg;Poisson populaire vivant en symbiose avec les anémones.
+006;Poisson eau douce;Axolotl;3;50;avares://OceanStock/Assets/axolotl.jpg;Amphibien unique qui garde une forme larvaire toute sa vie.
+007;Poisson eau de mer;Saumon;50;14;avares://OceanStock/Assets/saumon.jpg;Poisson gras très apprécié, riche en oméga‑3.
+008;Poisson eau de mer;Dorade Royale;22;13;avares://OceanStock/Assets/dorade_royale.jpg;Poisson blanc délicat, très populaire en cuisine méditerranéenne.
+009;Poisson eau de mer;Merlan;40;8;avares://OceanStock/Assets/merlan.jpg;Poisson à chair blanche, souvent frit ou cuit au four.
+010;Poisson eau de mer;Thon Rouge;20;18;avares://OceanStock/Assets/thon_rouge.jpg;Grand poisson apprécié cru dans la cuisine japonaise.
+011;Poisson eau douce;Truite arc-en-ciel;35;11;avares://OceanStock/Assets/truite_arc_en_ciel.jpg;Poisson de rivière savoureux, très prisé dans la gastronomie.
+012;Poisson eau douce;Sandre;18;16;avares://OceanStock/Assets/sandre.jpg;Poisson carnassier à la chair fine et délicate.
+013;Poisson tropical;Tilapia;50;7;avares://OceanStock/Assets/tilapia.jpg;Poisson d’eau chaude doux, très utilisé dans la cuisine mondiale.
+
