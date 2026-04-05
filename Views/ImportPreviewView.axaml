@@ -1,0 +1,196 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MyProjectBase.ViewModels"
+             x:Class="MyProjectBase.Views.ImportPreviewView"
+             x:DataType="vm:ImportPreviewViewModel">
+
+    <Design.DataContext>
+        <vm:ImportPreviewViewModel />
+    </Design.DataContext>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="20"
+                    HorizontalAlignment="Center"
+                    MaxWidth="700"
+                    Spacing="20">
+
+            <!-- ✅ TITRE -->
+            <TextBlock Text="Prévisualisation de l'import CSV"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#023E8A"
+                       HorizontalAlignment="Center"/>
+
+            <!-- ✅ BOUTONS -->
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="15">
+
+                <!-- TOUS -->
+                <ToggleButton Content="Tous"
+                              Padding="10"
+                              CornerRadius="10"
+                              IsChecked="{Binding IsAllSelected}"
+                              Command="{Binding SelectAllCommand}">
+                    <ToggleButton.Styles>
+                        <Style Selector="ToggleButton:checked">
+                            <Setter Property="Background" Value="#023E8A"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </ToggleButton.Styles>
+                </ToggleButton>
+
+                <!-- NOUVEAUX -->
+                <ToggleButton Content="Nouveaux"
+                              Padding="10"
+                              CornerRadius="10"
+                              IsChecked="{Binding IsAllNewSelected}"
+                              Command="{Binding ToggleNewCommand}">
+                    <ToggleButton.Styles>
+                        <Style Selector="ToggleButton:checked">
+                            <Setter Property="Background" Value="#2ECC71"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </ToggleButton.Styles>
+                </ToggleButton>
+
+                <ToggleButton Content="Modifiés"
+                              Padding="10"
+                              CornerRadius="10"
+                              IsChecked="{Binding IsAllModifiedSelected}"
+                              Command="{Binding ToggleModifiedCommand}">
+                    <ToggleButton.Styles>
+                        <Style Selector="ToggleButton:checked">
+                            <Setter Property="Background" Value="#F39C12"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </ToggleButton.Styles>
+                </ToggleButton>
+
+                <Button Content="Conflits"
+                        Padding="10"
+                        CornerRadius="10"/>
+            </StackPanel>
+
+            <!-- ✅ LISTE -->
+            <Border Background="White"
+                    CornerRadius="15"
+                    Padding="15"
+                    BoxShadow="0 4 15 #00000022">
+
+                <ListBox ItemsSource="{Binding PreviewList}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+
+                            <!-- ✅ CARTE UNIQUE -->
+                            <Border Margin="5"
+                                    Padding="10"
+                                    CornerRadius="12"
+                                    Background="#F8F9FA"
+                                    BorderThickness="4"
+                                    Classes.New="{Binding IsNew}"
+                                    Classes.Modified="{Binding IsModified}"
+                                    Classes.Conflict="{Binding IsConflict}">
+
+                                <Border.Styles>
+
+                                    <!-- 🟢 NOUVEAU -->
+                                    <Style Selector="Border.New">
+                                        <Setter Property="BorderBrush" Value="#2ECC71"/>
+                                    </Style>
+
+                                    <!-- 🟠 MODIFIÉ -->
+                                    <Style Selector="Border.Modified">
+                                        <Setter Property="BorderBrush" Value="#F39C12"/>
+                                    </Style>
+
+                                    <!-- 🔴 CONFLIT -->
+                                    <Style Selector="Border.Conflict">
+                                        <Setter Property="BorderBrush" Value="#E74C3C"/>
+                                    </Style>
+
+                                </Border.Styles>
+
+                                <!-- ✅ CONTENU -->
+                                <Grid ColumnDefinitions="Auto,80,*">
+
+                                    <!-- CHECKBOX -->
+                                    <CheckBox Grid.Column="0"
+                                              IsChecked="{Binding IsSelected}"
+                                              IsEnabled="{Binding IsSelectable}"
+                                              VerticalAlignment="Top"
+                                              Margin="0,5,10,0"/>
+
+                                    <!-- IMAGE -->
+                                    <Image Grid.Column="1"
+                                           Width="70"
+                                           Height="70"
+                                           Source="{Binding Fish.Picture}"
+                                           Stretch="UniformToFill"
+                                           Margin="0,0,10,0"/>
+
+                                    <!-- INFOS -->
+                                    <StackPanel Grid.Column="2" Spacing="6">
+
+                                        <TextBlock Text="{Binding Fish.Name}"
+                                                   FontSize="16"
+                                                   FontWeight="Bold"/>
+
+                                        <TextBlock Text="{Binding Fish.Group}"
+                                                   Foreground="Gray"/>
+
+                                        <StackPanel Spacing="4">
+                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                <TextBlock Text="Stock :" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Fish.Stock}"/>
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                <TextBlock Text="Prix :" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Fish.Price}"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <TextBlock Text="{Binding Fish.ShortDescription}"
+                                                   Foreground="DarkGray"
+                                                   FontSize="13"/>
+
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+
+            <!-- ✅ ACTIONS -->
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="20">
+
+                <TextBlock FontWeight="Bold"
+                           FontSize="16"
+                           Foreground="#023E8A"
+                           Text="{Binding SelectedCount, StringFormat=Sélectionné ({0})}"/>
+
+                <Button Content="Annuler"
+                        Padding="12 8"
+                        Background="#6C757D"
+                        Foreground="White"
+                        CornerRadius="10"
+                        Command="{Binding CancelCommand}"/>
+
+                <Button Content="Importer"
+                        Padding="12 8"
+                        Background="#28A745"
+                        Foreground="White"
+                        CornerRadius="10"
+                        IsEnabled="{Binding CanImport}"
+                        Command="{Binding ConfirmImportCommand}"/>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

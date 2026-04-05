@@ -19,4 +19,17 @@ public class ProductFish
 
     // Image chargée dans l'app (non sérialisable)
     internal IImage? Picture { get; set; }
+    
+    public string ShortDescription
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(Description))
+                return "";
+
+            return Description.Length > 20
+                ? Description.Substring(0, 20) + "..."
+                : Description;
+        }
+    }
 }

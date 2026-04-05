@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MyProjectBase.ViewModels"
+             x:Class="MyProjectBase.Views.EditFishView"
+             x:DataType="vm:EditFishViewModel">
+
+    <Design.DataContext>
+        <vm:EditFishViewModel />
+    </Design.DataContext>
+        
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="20"
+                    MaxWidth="550"
+                    HorizontalAlignment="Center"
+                    Spacing="20">
+
+            <!-- ✅ Titre -->
+            <TextBlock Text="Modifier le Poisson"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#023E8A"
+                       HorizontalAlignment="Center"/>
+
+            <!-- ✅ Nom -->
+            <StackPanel>
+                <TextBlock Text="Nom" FontWeight="Bold"/>
+                <TextBox Text="{Binding Name}"/>
+            </StackPanel>
+
+            <!-- ✅ Groupe -->
+            <StackPanel>
+                <TextBlock Text="Groupe" FontWeight="Bold"/>
+                <TextBox Text="{Binding Group}"/>
+            </StackPanel>
+
+            <!-- ✅ Stock -->
+            <StackPanel>
+                <TextBlock Text="Stock" FontWeight="Bold"/>
+                <TextBox Text="{Binding Stock}"/>
+            </StackPanel>
+
+            <!-- ✅ Prix -->
+            <StackPanel>
+                <TextBlock Text="Prix (€)" FontWeight="Bold"/>
+                <TextBox Text="{Binding Price}"/>
+            </StackPanel>
+
+            <!-- ✅ Description -->
+            <StackPanel>
+                <TextBlock Text="Description" FontWeight="Bold"/>
+                <TextBox Text="{Binding Description}"
+                         AcceptsReturn="True"
+                         Height="90"/>
+            </StackPanel>
+
+            <!-- ✅ Boutons actions -->
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="20">
+
+                <!-- Annuler -->
+                <Button Content="Annuler"
+                        Background="#6C757D"
+                        Foreground="White"
+                        Padding="12 8"
+                        CornerRadius="10"
+                        Command="{Binding CancelCommand}"/>
+
+                <!-- Sauvegarder -->
+                <Button Content="✅ Sauvegarder"
+                        Background="#28A745"
+                        Foreground="White"
+                        Padding="12 8"
+                        CornerRadius="10"
+                        Command="{Binding SaveCommand}"/>
+            </StackPanel>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

@@ -133,17 +133,31 @@ public class CsvServices
     /// </summary>
     public async Task SaveDataAsync<T>(List<T> data)
     {
-        var csv = new StringBuilder();
-        var properties = typeof(T).GetProperties();
+        var properties = typeof(T).GetProperties()
+            // ✅ Ne garder que les propriétés légitimes (pas IImage)
+            .Where(p => p.PropertyType.Namespace != "Avalonia.Media")
+            .ToArray();
 
-        // ✅ En-têtes
+        var csv = new StringBuilder();
+
+        // ✅ En‑têtes filtrés
         csv.AppendLine(string.Join(";", properties.Select(p => p.Name)));
 
         // ✅ Lignes
         foreach (var item in data)
         {
             var values = properties.Select(p =>
-                p.GetValue(item)?.ToString() ?? "");
+            {
+                var value = p.GetValue(item);
+
+                // ✅ Cas spécial pour ProductFish : on force PicturePath
+                if (item is ProductFish && p.Name == nameof(ProductFish.PicturePath))
+                {
+                    return value?.ToString() ?? "";
+                }
+
+                return value?.ToString() ?? "";
+            });
 
             csv.AppendLine(string.Join(";", values));
         }

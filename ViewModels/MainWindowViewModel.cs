@@ -46,7 +46,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void GoToDetailsFromChild(string productId)
     {
-        CurrentPage = new CollectionDetailsViewModel(productId);
+        CurrentPage = new CollectionDetailsViewModel(productId,this);
     }
 
     // ✅ Retour à la vue collection
@@ -162,23 +162,20 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    // ✅ Import CSV
+    //  Import CSV
     [RelayCommand]
     private async Task ImportCsv()
     {
-        var data = await _csvService.LoadDataAsync<ProductFish>();
+        var imported = await _csvService.LoadDataAsync<ProductFish>();
 
-        if (data.Count == 0)
+        if (imported.Count == 0)
             return;
 
-        MyGlobals.ProductsFish.Clear();
-        foreach (var p in data)
-            MyGlobals.ProductsFish.Add(p);
+        // ✅ Liste EXISTANTE de poissons (source de vérité)
+        var existing = MyGlobals.ProductsFish; // ou CollectionView / Products / etc.
 
-        // Sauvegarde JSON automatique
-        await _jsonService.SetProductsAsync(MyGlobals.ProductsFish.ToList());
-
-        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
+        // ✅ Ouvre la page intermédiaire
+        CurrentPage = new ImportPreviewViewModel(imported, existing, this);
     }
 
     // ✅ Export CSV
@@ -187,4 +184,36 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         await _csvService.SaveDataAsync(MyGlobals.ProductsFish.ToList());
     }
+    
+   
+    public async Task DeleteFishAsync(ProductFish fish)
+    {
+        // On demande confirmation à l'utilisateur
+        // "Êtes-vous sûr de vouloir supprimer X ?"
+        var result = await DialogHelper.ShowConfirm(_topLevelWindow,
+            $"Voulez-vous vraiment supprimer {fish.Name} ?");
+
+        // Si l'utilisateur clique "Non" → on annule
+        if (!result)
+            return;
+
+        // On supprime le poisson de la liste globale
+        MyGlobals.ProductsFish.Remove(fish);
+
+        // On sauvegarde automatiquement sur le serveur JSON
+        await _jsonService.SetProductsAsync(MyGlobals.ProductsFish.ToList());
+
+        
+        // Auto-save JSON
+        await _jsonService.SetProductsAsync(MyGlobals.ProductsFish.ToList());
+
+        // On revient à la liste des poissons
+        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
+    }
+
+    public void GoToEditFish(ProductFish fish)
+    {
+        CurrentPage = new EditFishViewModel(fish, this);
+    }
+
 }
