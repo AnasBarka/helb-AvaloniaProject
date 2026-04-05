@@ -23,6 +23,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     // Référence à la fenêtre principale (pour MessageBox)
     private readonly Window _topLevelWindow;
+    
+    public TopLevel TopLevel => _topLevelWindow;
 
     public MainWindowViewModel(TopLevel topLevel)
     {
@@ -80,15 +82,17 @@ public partial class MainWindowViewModel : ViewModelBase
                     {
                         try
                         {
-                            // ✅ Image locale de type AVARES
-                            if (p.PicturePath.StartsWith("avares://"))
-                            {
-                                p.Picture = ImageHelper.LoadFromResource(new Uri(p.PicturePath));
-                            }
+                            // 🔥 1. Corrige automatiquement le chemin
+                            p.PicturePath = ImageHelper.EnsureInAssets(p.PicturePath, p.ID);
+
+                            // 🔥 2. Charge l'image
+                            p.Picture = ImageHelper.LoadFromResource(new Uri(p.PicturePath));
                         }
                         catch
                         {
-                            p.Picture = null; // Pas d'image → pas de crash
+                            // 🔥 fallback propre
+                            p.Picture = ImageHelper.LoadFromResource(
+                                new Uri("avares://MyProjectBase/Assets/placeholder.png"));
                         }
                     }
 

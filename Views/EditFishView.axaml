@@ -21,6 +21,31 @@
                        FontWeight="Bold"
                        Foreground="#023E8A"
                        HorizontalAlignment="Center"/>
+            
+            <!-- Imqges -->
+            
+            
+            <Button Command="{Binding ChangeImageCommand}"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+
+
+                <Image Source="{Binding Picture}"
+                       Height="180"
+                       Stretch="Uniform"/>
+            </Button>
+
+
+
+            <TextBlock Text="Cliquez sur l’image pour la changer"
+                       FontSize="12"
+                       Foreground="Gray"
+                       HorizontalAlignment="Center"
+                       Margin="0,5,0,0"/>
+
 
             <!-- ✅ Nom -->
             <StackPanel>
