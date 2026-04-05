@@ -2,9 +2,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using MyProjectBase.ViewModels;
+using OceanStock.ViewModels;
 
-namespace MyProjectBase;
+namespace OceanStock;
 
 /// <summary>
 /// Given a view model, returns the corresponding view if possible.

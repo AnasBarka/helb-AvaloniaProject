@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using MyProjectBase.Models;
-using MyProjectBase.Helpers; // ✅ Pour ImageHelper
+using OceanStock.Helpers;
+using OceanStock.Models; // ✅ Pour ImageHelper
 
-namespace MyProjectBase.Services;
+namespace OceanStock.Services;
 
 /// <summary>
 /// Service responsable du chargement et de la sauvegarde d'un fichier CSV.

@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace MyProjectBase;
+namespace OceanStock;
 
 sealed class Program
 {

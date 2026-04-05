@@ -3,10 +3,10 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
-using MyProjectBase.ViewModels;
-using MyProjectBase.Views;
+using OceanStock.ViewModels;
+using OceanStock.Views;
 
-namespace MyProjectBase;
+namespace OceanStock;
 
 public class App : Application
 {

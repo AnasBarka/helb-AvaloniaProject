@@ -2,7 +2,7 @@
 using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace MyProjectBase.ViewModels;
+namespace OceanStock.ViewModels;
 
 public abstract class ViewModelBase : ObservableObject, IDisposable
 {

@@ -3,7 +3,7 @@ using Avalonia.Layout;
 using System.Threading.Tasks;
 using Avalonia;
 
-namespace MyProjectBase.Helpers
+namespace OceanStock.Helpers
 {
     public static class DialogHelper
     {

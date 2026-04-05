@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Management;
 
-namespace MyProjectBase.Services;
+namespace OceanStock.Services;
 
 public partial class DeviceOrientationService
 {

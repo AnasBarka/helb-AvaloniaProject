@@ -1,13 +1,14 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyProjectBase.Models;
 using Avalonia.Platform.Storage;
-using MyProjectBase.Helpers;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Media;
-namespace MyProjectBase.ViewModels;
+using OceanStock.Helpers;
+using OceanStock.Models;
+
+namespace OceanStock.ViewModels;
 
 public partial class EditFishViewModel : ViewModelBase
 {

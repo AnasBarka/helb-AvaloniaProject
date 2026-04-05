@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using MyProjectBase.Models;
+using OceanStock.Models;
 
-namespace MyProjectBase.ViewModels;
+namespace OceanStock.ViewModels;
 
 
 public enum ImportStatus

@@ -3,7 +3,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using MongoDB.Bson;
 
-namespace MyProjectBase.Models;
+namespace OceanStock.Models;
 
 public class ProductFish
 {

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using MyProjectBase.Models;
+using OceanStock.Models;
 
-namespace MyProjectBase;
+namespace OceanStock;
 
 public static class MyGlobals
 {

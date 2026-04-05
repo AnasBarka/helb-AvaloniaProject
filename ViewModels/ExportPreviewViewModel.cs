@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyProjectBase.Models;
-using MyProjectBase.Services;
+using OceanStock.Models;
+using OceanStock.Services;
 
-namespace MyProjectBase.ViewModels;
+namespace OceanStock.ViewModels;
 
 public partial class ExportPreviewViewModel : ViewModelBase
 {

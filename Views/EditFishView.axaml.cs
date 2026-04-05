@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace MyProjectBase.Views;
+namespace OceanStock.Views;
 
 public partial class EditFishView : UserControl
 {

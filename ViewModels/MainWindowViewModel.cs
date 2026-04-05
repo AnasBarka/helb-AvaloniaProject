@@ -5,11 +5,11 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Avalonia.Controls;
-using MyProjectBase.Helpers;
-using MyProjectBase.Models;
-using MyProjectBase.Services;
+using OceanStock.Helpers;
+using OceanStock.Models;
+using OceanStock.Services;
 
-namespace MyProjectBase.ViewModels;
+namespace OceanStock.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
@@ -92,7 +92,7 @@ public partial class MainWindowViewModel : ViewModelBase
                         {
                             // 🔥 fallback propre
                             p.Picture = ImageHelper.LoadFromResource(
-                                new Uri("avares://MyProjectBase/Assets/placeholder.png"));
+                                new Uri("avares://OceanStock/Assets/placeholder.png"));
                         }
                     }
 
@@ -111,9 +111,9 @@ public partial class MainWindowViewModel : ViewModelBase
                     Stock = 0,
                     Price = 0,
                     Description = "Aucune donnée disponible",
-                    PicturePath = "avares://MyProjectBase/Assets/placeholder.png",
+                    PicturePath = "avares://OceanStock/Assets/placeholder.png",
                     Picture = ImageHelper.LoadFromResource(
-                        new Uri("avares://MyProjectBase/Assets/placeholder.png"))
+                        new Uri("avares://OceanStock/Assets/placeholder.png"))
                 });
             }
         }

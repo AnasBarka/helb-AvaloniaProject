@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace MyProjectBase.Views;
+namespace OceanStock.Views;
 
 public partial class CollectionView:UserControl
 {

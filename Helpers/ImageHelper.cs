@@ -6,7 +6,7 @@ using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 
-namespace MyProjectBase.Helpers
+namespace OceanStock.Helpers
 {
     public static class ImageHelper
     {
@@ -39,7 +39,7 @@ namespace MyProjectBase.Helpers
         public static string EnsureInAssets(string? path, string fishId)
         {
             if (string.IsNullOrWhiteSpace(path))
-                return "avares://MyProjectBase/Assets/placeholder.png";
+                return "avares://OceanStock/Assets/placeholder.png";
 
             // ✅ Déjà OK → on garde
             if (path.StartsWith("avares://"))
@@ -60,11 +60,11 @@ namespace MyProjectBase.Helpers
                 }
 
                 // ✅ On retourne TOUJOURS un path propre
-                return $"avares://MyProjectBase/Assets/{fileName}";
+                return $"avares://OceanStock/Assets/{fileName}";
             }
             catch
             {
-                return "avares://MyProjectBase/Assets/placeholder.png";
+                return "avares://OceanStock/Assets/placeholder.png";
             }
         }
     }

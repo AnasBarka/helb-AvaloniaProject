@@ -4,9 +4,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
-using MyProjectBase.Models;
+using OceanStock.Models;
 
-namespace MyProjectBase.Services
+namespace OceanStock.Services
 {
     public class JSONServices
     {

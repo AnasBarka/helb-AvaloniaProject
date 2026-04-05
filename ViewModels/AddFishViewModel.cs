@@ -7,11 +7,11 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyProjectBase.Helpers;
-using MyProjectBase.Models;
-using MyProjectBase.Services;
+using OceanStock.Helpers;
+using OceanStock.Models;
+using OceanStock.Services;
 
-namespace MyProjectBase.ViewModels;
+namespace OceanStock.ViewModels;
 
 public partial class AddFishViewModel : ViewModelBase
 {

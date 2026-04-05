@@ -1,7 +1,7 @@
 using Avalonia.Controls;
-using MyProjectBase.ViewModels;
+using OceanStock.ViewModels;
 
-namespace MyProjectBase.Views;
+namespace OceanStock.Views;
 
 public partial class MainWindow : Window
 {
