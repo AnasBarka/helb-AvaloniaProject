@@ -225,4 +225,11 @@ public partial class MainWindowViewModel : ViewModelBase
         CurrentPage = new EditFishViewModel(fish, this);
     }
 
+    
+    [RelayCommand] 
+    public void GoToAddFish()
+    {
+        CurrentPage = new AddFishViewModel(this);
+    }
+
 }

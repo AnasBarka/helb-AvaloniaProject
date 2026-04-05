@@ -1,0 +1,197 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MyProjectBase.ViewModels"
+             x:Class="MyProjectBase.Views.AddFishView"
+             x:DataType="vm:AddFishViewModel">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="20"
+                    MaxWidth="550"
+                    HorizontalAlignment="Center"
+                    Spacing="18">
+
+            <!-- Titre -->
+            <TextBlock Text="➕ Ajouter un Poisson"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#023E8A"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,6"/>
+
+            <!-- Zone image cliquable -->
+            <Border CornerRadius="16"
+                    Background="#E3F6FF"
+                    Height="180"
+                    Width="180"
+                    HorizontalAlignment="Center"
+                    ClipToBounds="True"
+                    BoxShadow="0 4 15 #00000022">
+
+                <Button Command="{Binding ChooseImageCommand}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch">
+
+                    <Panel>
+                        <!-- Image choisie -->
+                        <Image Source="{Binding Picture}"
+                               Stretch="UniformToFill"
+                               IsVisible="{Binding Picture, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+
+                        <!-- Placeholder quand pas d'image -->
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="8"
+                                    IsVisible="{Binding Picture, Converter={x:Static ObjectConverters.IsNull}}">
+                            <TextBlock Text="📷"
+                                       FontSize="40"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Choisir une image"
+                                       FontSize="13"
+                                       Foreground="#0077B6"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Panel>
+
+                </Button>
+            </Border>
+
+            <TextBlock Text="Cliquez sur l'image pour en choisir une"
+                       FontSize="12"
+                       Foreground="Gray"
+                       HorizontalAlignment="Center"
+                       Margin="0,-8,0,0"/>
+
+            <!-- Message d'erreur -->
+            <Border Background="#FFECEC"
+                    CornerRadius="10"
+                    Padding="12,8"
+                    IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#C0392B"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- ID (focusable pour scanner USB) -->
+            <Border Background="White"
+                    CornerRadius="12"
+                    Padding="14,10"
+                    BoxShadow="0 2 8 #00000015">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="ID" FontWeight="Bold" Foreground="#023E8A"/>
+                    <TextBox Text="{Binding Id}"
+                             Watermark="Ex : 001  (ou scanner le QR code)"
+                             x:Name="IdBox"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Nom -->
+            <Border Background="White"
+                    CornerRadius="12"
+                    Padding="14,10"
+                    BoxShadow="0 2 8 #00000015">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Nom" FontWeight="Bold" Foreground="#023E8A"/>
+                    <TextBox Text="{Binding Name}" Watermark="Ex : Poisson clown"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Groupe (ComboBox) -->
+            <Border Background="White"
+                    CornerRadius="12"
+                    Padding="14,10"
+                    BoxShadow="0 2 8 #00000015">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Groupe" FontWeight="Bold" Foreground="#023E8A"/>
+                    <ComboBox ItemsSource="{Binding Groups}"
+                              SelectedItem="{Binding Group}"
+                              PlaceholderText="Sélectionner un groupe"
+                              HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Stock et Prix côte à côte -->
+            <Grid ColumnDefinitions="*,16,*">
+
+                <Border Background="White"
+                        CornerRadius="12"
+                        Padding="14,10"
+                        BoxShadow="0 2 8 #00000015">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Stock" FontWeight="Bold" Foreground="#023E8A"/>
+                        <TextBox Text="{Binding Stock}" Watermark="0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Background="White"
+                        CornerRadius="12"
+                        Padding="14,10"
+                        BoxShadow="0 2 8 #00000015">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Prix (€)" FontWeight="Bold" Foreground="#023E8A"/>
+                        <TextBox Text="{Binding Price}" Watermark="0"/>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+
+            <!-- Description -->
+            <Border Background="White"
+                    CornerRadius="12"
+                    Padding="14,10"
+                    BoxShadow="0 2 8 #00000015">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Description" FontWeight="Bold" Foreground="#023E8A"/>
+                    <TextBox Text="{Binding Description}"
+                             Watermark="Description du poisson..."
+                             AcceptsReturn="True"
+                             Height="90"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Boutons -->
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="16"
+                        Margin="0,6,0,20">
+
+                <Button Content="Annuler"
+                        Background="#6C757D"
+                        Foreground="White"
+                        Padding="14,10"
+                        CornerRadius="10"
+                        Command="{Binding CancelCommand}">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="#5A6268"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+
+                <Button Content="➕ Ajouter"
+                        Background="#0077B6"
+                        Foreground="White"
+                        Padding="14,10"
+                        CornerRadius="10"
+                        Command="{Binding AddFishCommand}">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="#005F8E"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+
+            </StackPanel>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

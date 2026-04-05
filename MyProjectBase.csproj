@@ -27,5 +27,11 @@
         <PackageReference Include="ReactiveUI" Version="23.1.0-beta.1" />
         <PackageReference Include="System.IO.Ports" Version="11.0.0-preview.1.26104.118" />
         <PackageReference Include="System.Management" Version="10.0.3" />
+        
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Update="Views\AddFishView.axaml.cs">
+            <DependentUpon>AddFishView.axaml</DependentUpon>
+        </Compile>
     </ItemGroup>
 </Project>

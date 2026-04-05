@@ -63,7 +63,9 @@
                     <Button Content="🏠 Accueil"
                             Height="40"
                             Command="{Binding BackToMainCommand}"/>
-
+                    <Button Content="➕ Ajouter un poisson"
+                            Height="40"
+                            Command="{Binding GoToAddFishCommand}"/>
                     <Button Content="📥 Import CSV"
                             Height="40"
                             Command="{Binding ImportCsvCommand}"/>
