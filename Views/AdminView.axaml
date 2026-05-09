@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OceanStock.ViewModels"
+             xmlns:dg="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.DataGrid"
+             x:Class="OceanStock.Views.AdminView"
+             x:DataType="vm:AdminViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*"
+          Margin="20">
+
+        <!-- HEADER -->
+        <StackPanel Spacing="10">
+
+            <TextBlock Text="Administration des utilisateurs"
+                       FontSize="28"
+                       FontWeight="Bold"/>
+
+            <TextBlock Text="{Binding FilteredUsers.Count,
+                                      StringFormat='Utilisateurs : {0}'}"/>
+
+            <!-- SEARCH -->
+            <TextBox Watermark="Rechercher..."
+                     Width="300"
+                     Text="{Binding SearchText}"/>
+
+            <!-- CRUD BUTTONS -->
+            <StackPanel Orientation="Horizontal"
+                        Spacing="10">
+
+                <Button Content="Ajouter"
+                        Width="100"
+                        Command="{Binding CreateUserCommand}"/>
+
+                <Button Content="Modifier"
+                        Width="100"
+                        Command="{Binding UpdateUserCommand}"/>
+
+                <Button Content="Supprimer"
+                        Width="100"
+                        Command="{Binding DeleteUserCommand}"/>
+
+            </StackPanel>
+
+        </StackPanel>
+
+        <!-- TABLE -->
+        <Border Grid.Row="2"
+                Margin="0,20,0,0"
+                CornerRadius="10"
+                Padding="10">
+
+            <dg:DataGrid ItemsSource="{Binding FilteredUsers}"
+                         SelectedItem="{Binding SelectedUser}"
+                         AutoGenerateColumns="False"
+                         GridLinesVisibility="All"
+                         HeadersVisibility="Column"
+                         RowHeight="45">
+
+                <dg:DataGrid.Columns>
+
+                    <dg:DataGridTextColumn Header="Prénom"
+                                           Binding="{Binding FirstName}"
+                                           Width="*"/>
+
+                    <dg:DataGridTextColumn Header="Nom"
+                                           Binding="{Binding LastName}"
+                                           Width="*"/>
+
+                    <dg:DataGridTextColumn Header="E-mail"
+                                           Binding="{Binding Email}"
+                                           Width="2*"/>
+
+                    <dg:DataGridTextColumn Header="Rôle"
+                                           Binding="{Binding Role}"
+                                           Width="*"/>
+
+                </dg:DataGrid.Columns>
+
+            </dg:DataGrid>
+
+        </Border>
+
+    </Grid>
+
+</UserControl>

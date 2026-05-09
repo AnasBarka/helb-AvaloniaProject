@@ -74,6 +74,10 @@
                             Height="40"
                             Command="{Binding ExportCsvCommand}"/>
                     
+                    <Button Content="Administration"
+                            Command="{Binding GoToAdminCommand}"
+                            IsVisible="{Binding IsAdmin}" />
+                    
                 </StackPanel>
 
             </Border>

@@ -18,3 +18,8 @@ Ce fichier peut être utilisé directement via la fonctionnalité **Import CSV**
 ##Licence
 
 Projet académique / pédagogique
+
+##Admin user
+
+email:anas@test.com
+mdp:123

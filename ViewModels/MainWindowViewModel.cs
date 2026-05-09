@@ -8,6 +8,7 @@ using Avalonia.Controls;
 using OceanStock.Helpers;
 using OceanStock.Models;
 using OceanStock.Services;
+using BCrypt.Net;
 
 namespace OceanStock.ViewModels;
 
@@ -25,6 +26,9 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly Window _topLevelWindow;
     
     public TopLevel TopLevel => _topLevelWindow;
+    
+    // Propriété pour savoir si admin
+    public bool IsAdmin => Session.CurrentUser?.Role == "Admin";
 
     public MainWindowViewModel(TopLevel topLevel)
     {
@@ -33,10 +37,15 @@ public partial class MainWindowViewModel : ViewModelBase
         _topLevelWindow = (Window)topLevel;
         
         // ✅ Affiche immédiatement la liste avec la bonne commande
-        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand); 
-
+        //CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand); 
+        CurrentPage = new LoginViewModel(this);
         // Chargement JSON automatique au démarrage
         _ = LoadDataFromServer();
+        
+        //_ = TestCreateUser();
+        //_ = TestLogin();
+        
+
     }
 
     partial void OnCurrentPageChanging(ViewModelBase? oldValue, ViewModelBase? newValue)
@@ -55,7 +64,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void BackToMain()
     {
-        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
+        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand, this);
     }
 
     /// <summary>
@@ -139,7 +148,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         // ✅ Mise à jour de la page
-        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
+        //CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
     }
 
 
@@ -217,7 +226,7 @@ public partial class MainWindowViewModel : ViewModelBase
         await _jsonService.SetProductsAsync(MyGlobals.ProductsFish.ToList());
 
         // On revient à la liste des poissons
-        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
+        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand, this);
     }
 
     public void GoToEditFish(ProductFish fish)
@@ -230,6 +239,70 @@ public partial class MainWindowViewModel : ViewModelBase
     public void GoToAddFish()
     {
         CurrentPage = new AddFishViewModel(this);
+    }
+    // Méthode publique pour notifier changement admin
+    public void RefreshIsAdmin()
+    {
+        OnPropertyChanged(nameof(IsAdmin));
+    }
+    
+    [RelayCommand]
+    private void GoToAdmin()
+    {
+        if (Session.CurrentUser?.Role != "Admin")
+            return;
+
+        CurrentPage = new AdminViewModel(this);
+    }
+    
+    private async Task TestCreateUser()
+    {
+        var db = new DatabaseServices();
+
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword("123");
+
+        var user = new User
+        {
+            FirstName = "Anas",
+            LastName = "Test",
+            Email = "anas@test.com",
+            PasswordHash = hashedPassword,
+            Role = "User"
+        };
+
+        await db.CreateUserAsync(user);
+
+        Console.WriteLine("✅ User créé !");
+    }
+    private async Task TestGetUser()
+    {
+        var db = new DatabaseServices();
+
+        var user = await db.GetUserByEmailAsync("anas@test.com");
+
+        if (user != null)
+            Console.WriteLine("✅ trouvée: " + user.Email);
+        else
+            Console.WriteLine("❌ user non trouvé");
+    }
+    
+    private async Task TestLogin()
+    {
+        var db = new DatabaseServices();
+
+        var user = await db.LoginAsync("anas@test.com", "123");
+
+        if (user != null)
+        {
+            Session.CurrentUser = user; // 🔥 IMPORTANT
+            Console.WriteLine("✅ LOGIN OK : " + user.Email);
+        }
+        else
+        {
+            Console.WriteLine("❌ LOGIN FAIL");
+        }
+        Console.WriteLine("User connecté : " + Session.CurrentUser?.Email);
+
     }
 
 }

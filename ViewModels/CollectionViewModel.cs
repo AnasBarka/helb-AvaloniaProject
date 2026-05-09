@@ -19,9 +19,14 @@ public partial class CollectionViewModel : ViewModelBase
     // Élément sélectionné dans la liste
     [ObservableProperty] 
     private ProductFish? _selectedProduct;
+    
+    private readonly MainWindowViewModel _mainVM;
 
-    public CollectionViewModel(IRelayCommand<string> fromParentCommand)
+
+    public CollectionViewModel(IRelayCommand<string> fromParentCommand, MainWindowViewModel mainVM)
     {
+        _mainVM = mainVM;
+        
         FromParentCommand = fromParentCommand;
 
         ProductsFish = new ObservableCollection<ProductFish>();

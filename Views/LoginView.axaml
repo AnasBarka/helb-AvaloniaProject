@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:OceanStock.ViewModels"
+             xmlns:vm="using:OceanStock.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="OceanStock.Views.LoginView"
+             x:DataType="vm:LoginViewModel">
+
+    
+    <Border Padding="20">
+
+        <StackPanel Spacing="10">
+
+            <TextBlock Text="Login"
+                       FontSize="24"
+                       HorizontalAlignment="Center"/>
+
+            <TextBox Watermark="Email"
+                     Text="{Binding Email}"/>
+
+            <TextBox Watermark="Password"
+                     Text="{Binding Password}"
+                     PasswordChar="*"/>
+
+            <Button Content="Se connecter"
+                    Command="{Binding LoginCommand}"/>
+            
+            <Button Content="Créer un compte"
+                    Command="{Binding GoToRegisterCommand}"/>
+
+        </StackPanel>
+
+    </Border>
+</UserControl>

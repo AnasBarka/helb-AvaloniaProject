@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OceanStock.ViewModels"
+             x:Class="OceanStock.Views.UserFormView"
+             x:DataType="vm:UserFormViewModel">
+
+    <StackPanel Margin="40"
+                Spacing="15"
+                Width="400">
+
+        <TextBlock Text="Utilisateur"
+                   FontSize="28"
+                   FontWeight="Bold"/>
+
+        <TextBox Watermark="Prénom"
+                 Text="{Binding FirstName}"/>
+
+        <TextBox Watermark="Nom"
+                 Text="{Binding LastName}"/>
+
+        <TextBox Watermark="Email"
+                 Text="{Binding Email}"/>
+
+        <TextBox Watermark="Role"
+                 Text="{Binding Role}"/>
+
+        <TextBox Watermark="Password"
+                 Text="{Binding Password}"/>
+
+        <StackPanel Orientation="Horizontal"
+                    Spacing="10">
+
+            <Button Content="Sauvegarder"
+                    Command="{Binding SaveCommand}"/>
+
+            <Button Content="Annuler"
+                    Command="{Binding CancelCommand}"/>
+
+        </StackPanel>
+
+    </StackPanel>
+
+</UserControl>
