@@ -109,7 +109,7 @@ public partial class AddFishViewModel : ViewModelBase
         }
 
         // Vérifier que l'ID n'est pas déjà utilisé
-        if (MyGlobals.ProductsFish.Any(f => f.ID == Id.Trim()))
+        if (MyGlobals.ProductsFish.Any(f => f.Id == Id.Trim()))
         {
             ErrorMessage = $"⚠ Un poisson avec l'ID « {Id.Trim()} » existe déjà.";
             return;
@@ -120,14 +120,15 @@ public partial class AddFishViewModel : ViewModelBase
         // ── Création de l'objet ─────────────────────────────────────────────
         var newFish = new ProductFish
         {
-            ID          = Id.Trim(),
+            Id          = Id.Trim(),
             Name        = Name.Trim(),
             Group       = Group.Trim(),
             Stock       = Stock,
             Price       = Price,
             Description = Description.Trim(),
             PicturePath = PicturePath,
-            Picture     = Picture
+            Picture     = Picture,
+            IdOwner = Session.CurrentUser.Id
         };
 
         // ── Ajout dans la liste globale ─────────────────────────────────────

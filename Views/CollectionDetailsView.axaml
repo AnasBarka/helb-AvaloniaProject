@@ -57,7 +57,7 @@
                                FontSize="17"
                                Foreground="#595959"/>
 
-                    <TextBlock Text="{Binding MyFish.ID, StringFormat=🆔 ID : {0}}"
+                    <TextBlock Text="{Binding MyFish.Id, StringFormat=🆔 ID : {0}}"
                                FontSize="17"
                                Foreground="#595959"/>
 

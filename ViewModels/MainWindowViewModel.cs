@@ -1,78 +1,120 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Linq;
+
+using Avalonia.Controls;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Avalonia.Controls;
+
 using OceanStock.Helpers;
 using OceanStock.Models;
 using OceanStock.Services;
-using BCrypt.Net;
 
 namespace OceanStock.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    // Page UI active
-    [ObservableProperty] 
+    // =====================================================
+    // PAGE ACTUELLE
+    // =====================================================
+
+    [ObservableProperty]
     private ViewModelBase _currentPage;
 
-    // Services applicatifs
+    // =====================================================
+    // SERVICES
+    // =====================================================
+
     private readonly CsvServices _csvService;
     private readonly JSONServices _jsonService;
 
-    // Référence à la fenêtre principale (pour MessageBox)
+    // =====================================================
+    // FENÊTRE PRINCIPALE
+    // =====================================================
+
     private readonly Window _topLevelWindow;
-    
+
     public TopLevel TopLevel => _topLevelWindow;
-    
-    // Propriété pour savoir si admin
-    public bool IsAdmin => Session.CurrentUser?.Role == "Admin";
+
+    // =====================================================
+    // ADMIN
+    // =====================================================
+
+    public bool IsAdmin => Session.CurrentUser?.IsAdmin == true;
+
+    // =====================================================
+    // CONSTRUCTEUR
+    // =====================================================
 
     public MainWindowViewModel(TopLevel topLevel)
     {
         _csvService = new CsvServices(topLevel);
         _jsonService = new JSONServices();
-        _topLevelWindow = (Window)topLevel;
-        
-        // ✅ Affiche immédiatement la liste avec la bonne commande
-        //CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand); 
-        CurrentPage = new LoginViewModel(this);
-        // Chargement JSON automatique au démarrage
-        _ = LoadDataFromServer();
-        
-        //_ = TestCreateUser();
-        //_ = TestLogin();
-        
 
+        _topLevelWindow = (Window)topLevel;
+
+        // ✅ Page de départ
+        CurrentPage = new LoginViewModel(this);
+
+        // ✅ Chargement JSON au démarrage
+        _ = LoadDataFromServer();
     }
 
-    partial void OnCurrentPageChanging(ViewModelBase? oldValue, ViewModelBase? newValue)
+    // =====================================================
+    // CLEAN PAGE
+    // =====================================================
+
+    partial void OnCurrentPageChanging(
+        ViewModelBase? oldValue,
+        ViewModelBase? newValue)
     {
         oldValue?.Dispose();
     }
 
-    // ✅ Navigation vers détails d’un produit
+    // =====================================================
+    // NAVIGATION DETAILS
+    // =====================================================
+
     [RelayCommand]
     private void GoToDetailsFromChild(string productId)
     {
-        CurrentPage = new CollectionDetailsViewModel(productId,this);
+        CurrentPage = new CollectionDetailsViewModel(
+            productId,
+            this);
     }
 
-    // ✅ Retour à la vue collection
+    // =====================================================
+    // RETOUR COLLECTION
+    // =====================================================
+
     [RelayCommand]
     private void BackToMain()
     {
-        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand, this);
+        CurrentPage = new CollectionViewModel(
+            GoToDetailsFromChildCommand,
+            this);
     }
 
-    /// <summary>
-    /// ✅ Charge la liste des produits depuis l’API JSON locale.
-    /// Ajoute un placeholder si le serveur renvoie une liste vide.
-    /// </summary>
-    
+    // =====================================================
+    // MA COLLECTION
+    // =====================================================
 
+    [RelayCommand]
+    public void ShowMyCollection()
+    {
+        Session.SelectedUserIds = null;
+
+        CurrentPage = new CollectionViewModel(
+            GoToDetailsFromChildCommand,
+            this);
+    }
+
+    // =====================================================
+    // LOAD JSON
+    // =====================================================
 
     private async Task LoadDataFromServer()
     {
@@ -86,24 +128,31 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 foreach (var p in data)
                 {
-                    // ✅ Charger l'image depuis PicturePath
+                    // =========================================
+                    // IMAGE
+                    // =========================================
+
                     if (!string.IsNullOrWhiteSpace(p.PicturePath))
                     {
                         try
                         {
-                            // 🔥 1. Corrige automatiquement le chemin
-                            p.PicturePath = ImageHelper.EnsureInAssets(p.PicturePath, p.ID);
+                            p.PicturePath = ImageHelper.EnsureInAssets(
+                                p.PicturePath,
+                                p.Id);
 
-                            // 🔥 2. Charge l'image
-                            p.Picture = ImageHelper.LoadFromResource(new Uri(p.PicturePath));
+                            p.Picture = ImageHelper.LoadFromResource(
+                                new Uri(p.PicturePath));
                         }
                         catch
                         {
-                            // 🔥 fallback propre
                             p.Picture = ImageHelper.LoadFromResource(
                                 new Uri("avares://OceanStock/Assets/placeholder.png"));
                         }
                     }
+
+                    // =========================================
+                    // AJOUT LISTE
+                    // =========================================
 
                     MyGlobals.ProductsFish.Add(p);
                 }
@@ -114,7 +163,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
                 MyGlobals.ProductsFish.Add(new ProductFish
                 {
-                    ID = "N/A",
+                    Id = "N/A",
                     Name = "Aucun poisson disponible",
                     Group = "API vide",
                     Stock = 0,
@@ -128,13 +177,15 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (HttpRequestException)
         {
-            await DialogHelper.ShowError(_topLevelWindow,
+            await DialogHelper.ShowError(
+                _topLevelWindow,
                 "Impossible de contacter le serveur JSON.\nAssurez-vous que le serveur est disponible.");
 
             MyGlobals.ProductsFish.Clear();
+
             MyGlobals.ProductsFish.Add(new ProductFish
             {
-                ID = "ERR",
+                Id = "ERR",
                 Name = "Serveur inaccessible",
                 Group = "API DOWN",
                 Stock = 0,
@@ -143,123 +194,270 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erreur inattendue lors du chargement JSON :\n" + ex.Message);
+            Console.WriteLine(
+                "Erreur inattendue lors du chargement JSON :\n"
+                + ex.Message);
+        }
+        
+        // =========================================
+        // SYNC MONGO AU DEMARRAGE
+        // =========================================
 
+        var db = new DatabaseServices();
+
+        foreach (var fish in MyGlobals.ProductsFish)
+        {
+            var existing = await db.GetFishByCustomIdAsync(fish.Id);
+
+            if (existing == null)
+            {
+                await db.CreateFishAsync(fish);
+            }
+            else
+            {
+                await db.UpdateFishAsync(fish);
+            }
         }
 
-        // ✅ Mise à jour de la page
-        //CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand);
+        Console.WriteLine("✅ Sync Mongo au démarrage OK");
     }
 
+    // =====================================================
+    // SAVE JSON
+    // =====================================================
 
-    /// <summary>
-    /// ✅ Envoie la liste de produits à l’API JSON.
-    /// </summary>
     [RelayCommand]
     private async Task SaveJson()
     {
         try
         {
-            await _jsonService.SetProductsAsync(MyGlobals.ProductsFish.ToList());
+            await _jsonService.SetProductsAsync(
+                MyGlobals.ProductsFish.ToList());
+
             Console.WriteLine("✅ Sauvegarde JSON réussie !");
         }
         catch (HttpRequestException)
         {
-            await DialogHelper.ShowError(_topLevelWindow,
+            await DialogHelper.ShowError(
+                _topLevelWindow,
                 "Impossible de contacter le serveur JSON.\nAssurez-vous que Docker tourne.");
         }
         catch (Exception ex)
         {
-            await DialogHelper.ShowError(_topLevelWindow,
-                "Erreur inattendue lors de la sauvegarde JSON :\n" + ex.Message);
+            await DialogHelper.ShowError(
+                _topLevelWindow,
+                "Erreur inattendue lors de la sauvegarde JSON :\n"
+                + ex.Message);
+        }
+        var db = new DatabaseServices();
+        // ===============================
+        // CREATE + UPDATE Mongo
+        // ===============================
+        foreach (var fish in MyGlobals.ProductsFish)
+        {
+            var existing = await db.GetFishByCustomIdAsync(fish.Id);
+
+            if (existing == null)
+            {
+                Console.WriteLine("🟢 CREATE Mongo: " + fish.Name);
+                await db.CreateFishAsync(fish);
+            }
+            else
+            {
+                
+                // ✅ comparer les champs
+                bool hasChanged =
+                    existing.Name != fish.Name ||
+                    existing.Group != fish.Group ||
+                    existing.Stock != fish.Stock ||
+                    existing.Price != fish.Price ||
+                    existing.Description != fish.Description ||
+                    existing.PicturePath != fish.PicturePath ||
+                    existing.IdOwner != fish.IdOwner;
+
+                if (hasChanged)
+                {
+                    Console.WriteLine("🟡 UPDATE Mongo: " + fish.Name);
+                    await db.UpdateFishAsync(fish);
+                }
+
+                //Console.WriteLine("🟡 UPDATE Mongo: " + fish.Name);
+               //await db.UpdateFishAsync(fish);
+            }
+        }
+
+        // =========================================
+        // SUPPRIMER DANS MONGO SI PLUS DANS JSON
+        // =========================================
+        var mongoFish = await db.GetFishAsync();
+
+        foreach (var mongoItem in mongoFish)
+        {
+            bool existeDansJson = MyGlobals.ProductsFish
+                .Any(f => f.Id == mongoItem.Id);
+
+            if (!existeDansJson)
+            {
+                await db.DeleteFishAsync(mongoItem.Id);
+            }
         }
     }
 
-    //  Import CSV
+    // =====================================================
+    // IMPORT CSV
+    // =====================================================
+
     [RelayCommand]
     private async Task ImportCsv()
     {
-        var imported = await _csvService.LoadDataAsync<ProductFish>();
+        var imported =
+            await _csvService.LoadDataAsync<ProductFish>();
+
+        foreach (var fish in imported)
+        {
+            fish.IdOwner = Session.CurrentUser.Id;
+        }
 
         if (imported.Count == 0)
             return;
 
-        // ✅ Liste EXISTANTE de poissons (source de vérité)
-        var existing = MyGlobals.ProductsFish; // ou CollectionView / Products / etc.
+        var existing = MyGlobals.ProductsFish;
 
-        // ✅ Ouvre la page intermédiaire
-        CurrentPage = new ImportPreviewViewModel(imported, existing, this);
+        CurrentPage = new ImportPreviewViewModel(
+            imported,
+            existing,
+            this);
     }
 
-    // ✅ Export CSV
+    // =====================================================
+    // EXPORT CSV
+    // =====================================================
+
     [RelayCommand]
     private void ExportCsv()
     {
+        List<ProductFish> filteredFish;
+
+        // =========================================
+        // ADMIN
+        // =========================================
+
+        if (Session.SelectedUserIds != null
+            && Session.SelectedUserIds.Any())
+        {
+            filteredFish = MyGlobals.ProductsFish
+                .Where(p =>
+                    Session.SelectedUserIds.Contains(p.IdOwner))
+                .ToList();
+        }
+
+        // =========================================
+        // USER NORMAL
+        // =========================================
+
+        else
+        {
+            filteredFish = MyGlobals.ProductsFish
+                .Where(p =>
+                    p.IdOwner == Session.CurrentUser?.Id)
+                .ToList();
+        }
+
         CurrentPage = new ExportPreviewViewModel(
-            MyGlobals.ProductsFish,
+            filteredFish,
             this,
-            _csvService
-        );
+            _csvService);
     }
 
-
+    // =====================================================
+    // DELETE FISH
+    // =====================================================
 
     public async Task DeleteFishAsync(ProductFish fish)
     {
-        // On demande confirmation à l'utilisateur
-        // "Êtes-vous sûr de vouloir supprimer X ?"
-        var result = await DialogHelper.ShowConfirm(_topLevelWindow,
+        var result = await DialogHelper.ShowConfirm(
+            _topLevelWindow,
             $"Voulez-vous vraiment supprimer {fish.Name} ?");
 
-        // Si l'utilisateur clique "Non" → on annule
         if (!result)
             return;
 
-        // On supprime le poisson de la liste globale
+        // =========================================
+        // DELETE LOCAL
+        // =========================================
+
         MyGlobals.ProductsFish.Remove(fish);
 
-        // On sauvegarde automatiquement sur le serveur JSON
-        await _jsonService.SetProductsAsync(MyGlobals.ProductsFish.ToList());
+        // =========================================
+        // SAVE JSON
+        // =========================================
 
-        
-        // Auto-save JSON
-        await _jsonService.SetProductsAsync(MyGlobals.ProductsFish.ToList());
+        //await _jsonService.SetProductsAsync(
+        //  MyGlobals.ProductsFish.ToList());
+        await SaveJson();
 
-        // On revient à la liste des poissons
-        CurrentPage = new CollectionViewModel(GoToDetailsFromChildCommand, this);
+        // =========================================
+        // REFRESH PAGE
+        // =========================================
+
+        CurrentPage = new CollectionViewModel(
+            GoToDetailsFromChildCommand,
+            this);
     }
+
+    // =====================================================
+    // EDIT FISH
+    // =====================================================
 
     public void GoToEditFish(ProductFish fish)
     {
-        CurrentPage = new EditFishViewModel(fish, this);
+        CurrentPage = new EditFishViewModel(
+            fish,
+            this);
     }
 
-    
-    [RelayCommand] 
+    // =====================================================
+    // ADD FISH
+    // =====================================================
+
+    [RelayCommand]
     public void GoToAddFish()
     {
         CurrentPage = new AddFishViewModel(this);
     }
-    // Méthode publique pour notifier changement admin
+
+    // =====================================================
+    // REFRESH ADMIN UI
+    // =====================================================
+
     public void RefreshIsAdmin()
     {
         OnPropertyChanged(nameof(IsAdmin));
     }
-    
+
+    // =====================================================
+    // PAGE ADMIN
+    // =====================================================
+
     [RelayCommand]
     private void GoToAdmin()
     {
-        if (Session.CurrentUser?.Role != "Admin")
+        if (Session.CurrentUser?.IsAdmin != true)
             return;
 
         CurrentPage = new AdminViewModel(this);
     }
-    
+
+    // =====================================================
+    // TEST CREATE USER
+    // =====================================================
+
     private async Task TestCreateUser()
     {
         var db = new DatabaseServices();
 
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword("123");
+        var hashedPassword =
+            BCrypt.Net.BCrypt.HashPassword("123");
 
         var user = new User
         {
@@ -267,42 +465,56 @@ public partial class MainWindowViewModel : ViewModelBase
             LastName = "Test",
             Email = "anas@test.com",
             PasswordHash = hashedPassword,
-            Role = "User"
+            IsAdmin = false
         };
 
         await db.CreateUserAsync(user);
 
         Console.WriteLine("✅ User créé !");
     }
+
+    // =====================================================
+    // TEST GET USER
+    // =====================================================
+
     private async Task TestGetUser()
     {
         var db = new DatabaseServices();
 
-        var user = await db.GetUserByEmailAsync("anas@test.com");
+        var user =
+            await db.GetUserByEmailAsync("anas@test.com");
 
         if (user != null)
             Console.WriteLine("✅ trouvée: " + user.Email);
         else
             Console.WriteLine("❌ user non trouvé");
     }
-    
+
+    // =====================================================
+    // TEST LOGIN
+    // =====================================================
+
     private async Task TestLogin()
     {
         var db = new DatabaseServices();
 
-        var user = await db.LoginAsync("anas@test.com", "123");
+        var user =
+            await db.LoginAsync("anas@test.com", "123");
 
         if (user != null)
         {
-            Session.CurrentUser = user; // 🔥 IMPORTANT
-            Console.WriteLine("✅ LOGIN OK : " + user.Email);
+            Session.CurrentUser = user;
+
+            Console.WriteLine(
+                "✅ LOGIN OK : " + user.Email);
         }
         else
         {
             Console.WriteLine("❌ LOGIN FAIL");
         }
-        Console.WriteLine("User connecté : " + Session.CurrentUser?.Email);
 
+        Console.WriteLine(
+            "User connecté : "
+            + Session.CurrentUser?.Email);
     }
-
 }

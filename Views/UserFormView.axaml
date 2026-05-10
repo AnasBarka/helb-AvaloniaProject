@@ -21,8 +21,16 @@
         <TextBox Watermark="Email"
                  Text="{Binding Email}"/>
 
-        <TextBox Watermark="Role"
-                 Text="{Binding Role}"/>
+        <ComboBox ItemsSource="{Binding Roles}"
+                  SelectedItem="{Binding SelectedRole}">
+    
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+
+        </ComboBox>
 
         <TextBox Watermark="Password"
                  Text="{Binding Password}"/>

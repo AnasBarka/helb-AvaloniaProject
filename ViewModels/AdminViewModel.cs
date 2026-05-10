@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq; 
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -46,6 +47,11 @@ public partial class AdminViewModel : ViewModelBase
     
     [ObservableProperty]
     private User? selectedUser;
+    
+    
+    [ObservableProperty]
+    private ObservableCollection<User> selectedUsers = new();
+
 
     // =========================================================
     // Constructeur
@@ -62,7 +68,7 @@ public partial class AdminViewModel : ViewModelBase
         // Si l'utilisateur n'est pas admin
         // retour à la page principale
         // =====================================================
-        if (Session.CurrentUser?.Role != "Admin")
+        if (Session.CurrentUser?.IsAdmin != true)
         {
             _mainVM.BackToMainCommand.Execute(null);
             return;
@@ -138,8 +144,9 @@ public partial class AdminViewModel : ViewModelBase
                 StringComparison.OrdinalIgnoreCase)
 
             // Recherche rôle
-            || u.Role.Contains(SearchText,
-                StringComparison.OrdinalIgnoreCase)
+            || (u.IsAdmin ? "Admin" : "User")
+            .Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+
         );
 
         // Ajoute les users filtrés
@@ -188,4 +195,22 @@ public partial class AdminViewModel : ViewModelBase
         _mainVM.CurrentPage =
             new UserFormViewModel(_mainVM, null);
     }
+    
+    
+
+    [RelayCommand]
+    private void ViewCollection()
+    {
+        if (SelectedUser == null)
+            return;
+
+        Session.SelectedUserIds = new List<string>
+        {
+            SelectedUser.Id
+        };
+
+        _mainVM.BackToMainCommand.Execute(null);
+    }
+
+
 }

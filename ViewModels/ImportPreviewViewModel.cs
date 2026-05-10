@@ -40,8 +40,11 @@ namespace OceanStock.ViewModels
             foreach (var fish in imported)
             {
                 var existingFish =
-                    existing.FirstOrDefault(x => x.Name == fish.Name); // ou Id
-
+                    existing.FirstOrDefault(x =>
+                        x.Id == fish.Id &&
+                        x.IdOwner == Session.CurrentUser.Id
+                    );
+                
                 var status = GetStatus(fish, existingFish);
 
                 var item = new ImportPreviewItem(fish, status);
@@ -191,11 +194,16 @@ namespace OceanStock.ViewModels
 
                 // Cherche s’il existe déjà
                 var existing = MyGlobals.ProductsFish
-                    .FirstOrDefault(x => x.Name == fish.Name); // ou ID
+                    .FirstOrDefault(x => 
+                        x.Name == fish.Name &&
+                        x.IdOwner == Session.CurrentUser.Id
+                        ); // ou ID
 
                 if (existing == null)
                 {
                     // NOUVEAU → ajouter
+                    
+                    fish.IdOwner = Session.CurrentUser.Id; // sécurité
                     MyGlobals.ProductsFish.Add(fish);
                 }
                 else
@@ -207,6 +215,7 @@ namespace OceanStock.ViewModels
                     existing.Description = fish.Description;
                     existing.Picture = fish.Picture;
                     existing.PicturePath = fish.PicturePath;
+                    existing.IdOwner = Session.CurrentUser.Id;
                 }
             }
 

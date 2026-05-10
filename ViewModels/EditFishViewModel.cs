@@ -30,7 +30,7 @@ public partial class EditFishViewModel : ViewModelBase
         _mainVM = mainVM;
         _originalFish = fish;
 
-        Id = fish.ID;
+        Id = fish.Id;
         Name = fish.Name;
         Group = fish.Group;
         Stock = fish.Stock;

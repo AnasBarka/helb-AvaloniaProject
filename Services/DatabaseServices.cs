@@ -8,10 +8,7 @@ namespace OceanStock.Services;
 
 public class DatabaseServices
 {
-    // ✅ Collection Fish
     private readonly IMongoCollection<ProductFish> _productFish;
-
-    // ✅ Collection Users
     private readonly IMongoCollection<User> _users;
 
     public DatabaseServices()
@@ -25,60 +22,93 @@ public class DatabaseServices
         settings.SocketTimeout = TimeSpan.FromSeconds(5);
 
         var client = new MongoClient(settings);
-
         var database = client.GetDatabase("OceanStockDB");
 
-        // Liaison collections
         _productFish = database.GetCollection<ProductFish>("Fish");
-        _users       = database.GetCollection<User>("Users");
+        _users = database.GetCollection<User>("Users");
 
-        Console.WriteLine(" MongoDB connecté -> Fish + Users OK");
+        Console.WriteLine("✅ MongoDB connecté → Fish + Users OK");
     }
-    
+
+    // =========================================================
+    // USERS
+    // =========================================================
+
     public async Task<User?> GetUserByEmailAsync(string email)
     {
-        return await _users
-            .Find(x => x.Email == email)
-            .FirstOrDefaultAsync();
+        return await _users.Find(x => x.Email == email).FirstOrDefaultAsync();
     }
-    
+
     public async Task<User?> LoginAsync(string email, string password)
     {
-        var user = await _users
-            .Find(x => x.Email == email)
-            .FirstOrDefaultAsync();
+        var user = await _users.Find(x => x.Email == email).FirstOrDefaultAsync();
 
         if (user == null)
             return null;
 
-        // ✅ Vérifier le mot de passe
         bool isValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
 
         return isValid ? user : null;
     }
-    
+
     public async Task<List<User>> GetUsersAsync()
     {
         return await _users.Find(_ => true).ToListAsync();
     }
-    
-    //CRUD USERS + CREATION DE COMPTE
+
     public async Task CreateUserAsync(User user)
     {
         await _users.InsertOneAsync(user);
     }
-    
+
     public async Task DeleteUserAsync(string id)
     {
         await _users.DeleteOneAsync(x => x.Id == id);
     }
-    
+
     public async Task UpdateUserAsync(User user)
     {
-        await _users.ReplaceOneAsync(
-            x => x.Id == user.Id,
-            user
+        await _users.ReplaceOneAsync(x => x.Id == user.Id, user);
+    }
+
+    // =========================================================
+    // FISH
+    // =========================================================
+
+    // ✅ GET ALL
+    public async Task<List<ProductFish>> GetFishAsync()
+    {
+        return await _productFish.Find(_ => true).ToListAsync();
+    }
+
+    // ✅ GET BY CUSTOM ID (clé métier JSON)
+    public async Task<ProductFish?> GetFishByCustomIdAsync(string customId)
+    {
+        return await _productFish
+            .Find(x => x.Id == customId)
+            .FirstOrDefaultAsync();
+    }
+
+    // ✅ CREATE
+    public async Task CreateFishAsync(ProductFish fish)
+    {
+        await _productFish.InsertOneAsync(fish);
+    }
+
+    // ✅ UPDATE (remplacement basé sur ID métier)
+    public async Task UpdateFishAsync(ProductFish fish)
+    {
+        await _productFish.ReplaceOneAsync(
+            x => x.Id == fish.Id,
+            fish
         );
     }
 
+    // ✅ DELETE (simple, sans UI)
+    public async Task DeleteFishAsync(string customId)
+    {
+        await _productFish.DeleteOneAsync(
+            x => x.Id == customId
+        );
+    }
 }

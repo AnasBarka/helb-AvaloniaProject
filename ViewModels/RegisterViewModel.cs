@@ -33,7 +33,7 @@ public partial class RegisterViewModel : ViewModelBase
             LastName = LastName,
             Email = Email,
             PasswordHash = hashedPassword,
-            Role = "User"
+            IsAdmin = false
         };
 
         await _db.CreateUserAsync(user);

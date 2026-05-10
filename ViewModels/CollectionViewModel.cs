@@ -34,17 +34,33 @@ public partial class CollectionViewModel : ViewModelBase
         // Charger tous les produits depuis MyGlobals
         foreach (var p in MyGlobals.ProductsFish)
         {
-            ProductsFish.Add(p);
-            /* Equivalent de;
-             * ProductsFish.Add(new ProductFish
-               {
-                   ID = p.ID,
-                   Name = p.Name,
-                   Group = p.Group,
-                   Stock = p.Stock,
-                   Price = p.Price
-               });
-             */
+            
+            // ✅ CAS ADMIN sélection
+            if (Session.SelectedUserIds != null && Session.SelectedUserIds.Any())
+            {
+                if (Session.SelectedUserIds.Contains(p.IdOwner))
+                {
+                    ProductsFish.Add(p);
+                }
+                /* Equivalent de;
+                  * ProductsFish.Add(new ProductFish
+                    {
+                        ID = p.ID,
+                        Name = p.Name,
+                        Group = p.Group,
+                        Stock = p.Stock,
+                        Price = p.Price
+                    });
+                  */
+            }
+            else
+            {
+                // ✅ comportement normal
+                if (p.IdOwner == Session.CurrentUser?.Id)
+                {
+                    ProductsFish.Add(p);
+                }
+            }
         }
     }
 }

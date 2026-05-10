@@ -84,7 +84,7 @@
                                         Background="#00B4D8"
                                         Foreground="White"
                                         Command="{Binding DataContext.FromParentCommand, ElementName=Collection}"
-                                        CommandParameter="{Binding ID}"
+                                        CommandParameter="{Binding Id}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
 

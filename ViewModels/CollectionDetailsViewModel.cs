@@ -24,7 +24,7 @@ public partial class CollectionDetailsViewModel : ViewModelBase
 
         // Recherche du produit correspondant dans la liste globale
         // Pas de crach meme si ID pas trouver
-        MyFish = MyGlobals.ProductsFish.FirstOrDefault(fish => fish.ID == id)
+        MyFish = MyGlobals.ProductsFish.FirstOrDefault(fish => fish.Id == id)
                  ?? new ProductFish { Name = "Produit introuvable" };    
     }
     

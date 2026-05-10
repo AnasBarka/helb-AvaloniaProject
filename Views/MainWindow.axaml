@@ -62,7 +62,7 @@
 
                     <Button Content="🏠 Accueil"
                             Height="40"
-                            Command="{Binding BackToMainCommand}"/>
+                            Command="{Binding ShowMyCollectionCommand}"/>
                     <Button Content="➕ Ajouter un poisson"
                             Height="40"
                             Command="{Binding GoToAddFishCommand}"/>
