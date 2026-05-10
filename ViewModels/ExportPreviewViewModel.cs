@@ -17,16 +17,10 @@ public partial class ExportPreviewViewModel : ViewModelBase
     private readonly CsvServices _csvService;
 
     public int SelectedCount => PreviewList.Count(x => x.IsSelected);
-
-    public bool IsAllSelected =>
-        PreviewList.Any() && PreviewList.All(x => x.IsSelected);
-
+    public bool IsAllSelected => PreviewList.Any() && PreviewList.All(x => x.IsSelected);
     public bool CanExport => SelectedCount > 0;
 
-    public ExportPreviewViewModel(
-        IEnumerable<ProductFish> data,
-        MainWindowViewModel mainVM,
-        CsvServices csvService)
+    public ExportPreviewViewModel(IEnumerable<ProductFish> data, MainWindowViewModel mainVM, CsvServices csvService)
     {
         _mainVM = mainVM;
         _csvService = csvService;
@@ -49,30 +43,25 @@ public partial class ExportPreviewViewModel : ViewModelBase
         }
     }
 
-    // ✅ Sélection globale
     [RelayCommand]
     private void SelectAll()
     {
         bool allSelected = IsAllSelected;
 
         foreach (var item in PreviewList)
-        {
             item.IsSelected = !allSelected;
-        }
 
         OnPropertyChanged(nameof(SelectedCount));
         OnPropertyChanged(nameof(IsAllSelected));
         OnPropertyChanged(nameof(CanExport));
     }
 
-    // ❌ Annuler
     [RelayCommand]
     private void Cancel()
     {
         _mainVM.BackToMainCommand.Execute(null);
     }
 
-    // ✅ Export
     [RelayCommand]
     private async Task ConfirmExport()
     {
@@ -85,7 +74,6 @@ public partial class ExportPreviewViewModel : ViewModelBase
             return;
 
         await _csvService.SaveDataAsync(selected);
-
         _mainVM.BackToMainCommand.Execute(null);
     }
 }

@@ -15,6 +15,7 @@ public partial class RegisterViewModel : ViewModelBase
     [ObservableProperty] private string lastName = "";
     [ObservableProperty] private string email = "";
     [ObservableProperty] private string password = "";
+    [ObservableProperty] private string? errorMessage;
 
     public RegisterViewModel(MainWindowViewModel mainVM)
     {
@@ -25,20 +26,32 @@ public partial class RegisterViewModel : ViewModelBase
     [RelayCommand]
     private async Task Register()
     {
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(Password);
+        ErrorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName)
+            || string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+        {
+            ErrorMessage = "Tous les champs sont obligatoires.";
+            return;
+        }
+
+        var existing = await _db.GetUserByEmailAsync(Email.Trim());
+        if (existing != null)
+        {
+            ErrorMessage = "Un compte avec cet email existe déjà.";
+            return;
+        }
 
         var user = new User
         {
-            FirstName = FirstName,
-            LastName = LastName,
-            Email = Email,
-            PasswordHash = hashedPassword,
+            FirstName = FirstName.Trim(),
+            LastName = LastName.Trim(),
+            Email = Email.Trim(),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password),
             IsAdmin = false
         };
 
         await _db.CreateUserAsync(user);
-
-        // ✅ retour login après création
         _mainVM.CurrentPage = new LoginViewModel(_mainVM);
     }
 

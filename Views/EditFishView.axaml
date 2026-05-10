@@ -7,7 +7,7 @@
     <Design.DataContext>
         <vm:EditFishViewModel />
     </Design.DataContext>
-        
+
     <ScrollViewer VerticalScrollBarVisibility="Auto">
 
         <StackPanel Margin="20"
@@ -15,63 +15,76 @@
                     HorizontalAlignment="Center"
                     Spacing="20">
 
-            <!-- ✅ Titre -->
             <TextBlock Text="Modifier le Poisson"
                        FontSize="28"
                        FontWeight="Bold"
                        Foreground="#023E8A"
                        HorizontalAlignment="Center"/>
-            
-            <!-- Imqges -->
-            
-            
-            <Button Command="{Binding ChangeImageCommand}"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Padding="0"
+
+            <Border CornerRadius="16"
+                    Background="#E3F6FF"
+                    Height="180"
+                    Width="180"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
+                    ClipToBounds="True">
 
+                <Button Command="{Binding ChangeImageCommand}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch">
 
-                <Image Source="{Binding Picture}"
-                       Height="180"
-                       Stretch="Uniform"/>
-            </Button>
+                    <Panel>
+                        <Image Source="{Binding Picture}"
+                               Stretch="Uniform"
+                               IsVisible="{Binding Picture, Converter={x:Static ObjectConverters.IsNotNull}}"/>
 
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="8"
+                                    IsVisible="{Binding Picture, Converter={x:Static ObjectConverters.IsNull}}">
+                            <TextBlock Text="[ photo ]"
+                                       FontSize="16"
+                                       Foreground="#0077B6"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Choisir une image"
+                                       FontSize="13"
+                                       Foreground="#0077B6"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Panel>
 
+                </Button>
+            </Border>
 
-            <TextBlock Text="Cliquez sur l’image pour la changer"
+            <TextBlock Text="Cliquez sur l'image pour la changer"
                        FontSize="12"
                        Foreground="Gray"
-                       HorizontalAlignment="Center"
-                       Margin="0,5,0,0"/>
+                       HorizontalAlignment="Center"/>
 
-
-            <!-- ✅ Nom -->
             <StackPanel>
                 <TextBlock Text="Nom" FontWeight="Bold"/>
                 <TextBox Text="{Binding Name}"/>
             </StackPanel>
 
-            <!-- ✅ Groupe -->
             <StackPanel>
                 <TextBlock Text="Groupe" FontWeight="Bold"/>
                 <TextBox Text="{Binding Group}"/>
             </StackPanel>
 
-            <!-- ✅ Stock -->
             <StackPanel>
                 <TextBlock Text="Stock" FontWeight="Bold"/>
                 <TextBox Text="{Binding Stock}"/>
             </StackPanel>
 
-            <!-- ✅ Prix -->
             <StackPanel>
                 <TextBlock Text="Prix (€)" FontWeight="Bold"/>
                 <TextBox Text="{Binding Price}"/>
             </StackPanel>
 
-            <!-- ✅ Description -->
             <StackPanel>
                 <TextBlock Text="Description" FontWeight="Bold"/>
                 <TextBox Text="{Binding Description}"
@@ -79,12 +92,10 @@
                          Height="90"/>
             </StackPanel>
 
-            <!-- ✅ Boutons actions -->
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Center"
                         Spacing="20">
 
-                <!-- Annuler -->
                 <Button Content="Annuler"
                         Background="#6C757D"
                         Foreground="White"
@@ -92,8 +103,7 @@
                         CornerRadius="10"
                         Command="{Binding CancelCommand}"/>
 
-                <!-- Sauvegarder -->
-                <Button Content="✅ Sauvegarder"
+                <Button Content="Sauvegarder"
                         Background="#28A745"
                         Foreground="White"
                         Padding="12 8"

@@ -7,14 +7,10 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using OceanStock.Helpers;
-using OceanStock.Models; // ✅ Pour ImageHelper
+using OceanStock.Models;
 
 namespace OceanStock.Services;
 
-/// <summary>
-/// Service responsable du chargement et de la sauvegarde d'un fichier CSV.
-/// Compatible avec n'importe quel modèle (ProductFish, etc.)
-/// </summary>
 public class CsvServices
 {
     private readonly TopLevel _topLevel;
@@ -24,17 +20,21 @@ public class CsvServices
         _topLevel = topLevel;
     }
 
-    /// <summary>
-    /// Charge un fichier CSV et convertit chaque ligne en T (ex : ProductFish)
-    /// </summary>
     public async Task<List<T>> LoadDataAsync<T>() where T : new()
     {
         var list = new List<T>();
 
+        var csvType = new FilePickerFileType("Fichiers CSV")
+        {
+            Patterns = new[] { "*.csv" },
+            MimeTypes = new[] { "text/csv" }
+        };
+
         var files = await _topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Sélectionnez un fichier CSV",
-            AllowMultiple = false
+            AllowMultiple = false,
+            FileTypeFilter = new[] { csvType }
         });
 
         if (files.Count == 0)
@@ -65,6 +65,7 @@ public class CsvServices
             {
                 var header = headers[j];
                 var rawValue = values[j].Trim().Trim('"');
+
                 if (string.IsNullOrWhiteSpace(header))
                     continue;
 
@@ -74,7 +75,6 @@ public class CsvServices
                 if (property == null)
                     continue;
 
-                // ❌ Ne jamais convertir Picture (IImage)
                 if (property.PropertyType.FullName!.Contains("Avalonia"))
                     continue;
 
@@ -86,40 +86,23 @@ public class CsvServices
                     object? convertedValue;
 
                     if (property.PropertyType == typeof(int))
-                    {
                         convertedValue = int.TryParse(rawValue, out var n) ? n : 0;
-                    }
                     else if (property.PropertyType == typeof(string))
-                    {
                         convertedValue = rawValue;
-                    }
                     else
-                    {
                         convertedValue = Convert.ChangeType(rawValue, property.PropertyType);
-                    }
 
                     property.SetValue(obj, convertedValue);
                 }
                 catch
                 {
-                    // ignore
+                    // valeur incompatible ignorée
                 }
             }
 
-            // ✅✅ ✅ CHARGER L’IMAGE SI T == ProductFish
-            if (obj is ProductFish fish)
+            if (obj is ProductFish fish && !string.IsNullOrWhiteSpace(fish.PicturePath))
             {
-                if (!string.IsNullOrWhiteSpace(fish.PicturePath))
-                {
-                    try
-                    {
-                        fish.Picture = ImageHelper.LoadFromResource(new Uri(fish.PicturePath));
-                    }
-                    catch
-                    {
-                        fish.Picture = null;
-                    }
-                }
+                fish.Picture = ImageHelper.LoadFromDisk(fish.PicturePath);
             }
 
             list.Add(obj);
@@ -128,37 +111,18 @@ public class CsvServices
         return list;
     }
 
-    /// <summary>
-    /// Sauvegarde une liste d'objets (ProductFish) dans un CSV
-    /// </summary>
     public async Task SaveDataAsync<T>(List<T> data)
     {
         var properties = typeof(T).GetProperties()
-            // ✅ Ne garder que les propriétés légitimes (pas IImage)
             .Where(p => p.PropertyType.Namespace != "Avalonia.Media")
             .ToArray();
 
         var csv = new StringBuilder();
-
-        // ✅ En‑têtes filtrés
         csv.AppendLine(string.Join(";", properties.Select(p => p.Name)));
 
-        // ✅ Lignes
         foreach (var item in data)
         {
-            var values = properties.Select(p =>
-            {
-                var value = p.GetValue(item);
-
-                // ✅ Cas spécial pour ProductFish : on force PicturePath
-                if (item is ProductFish && p.Name == nameof(ProductFish.PicturePath))
-                {
-                    return value?.ToString() ?? "";
-                }
-
-                return value?.ToString() ?? "";
-            });
-
+            var values = properties.Select(p => p.GetValue(item)?.ToString() ?? "");
             csv.AppendLine(string.Join(";", values));
         }
 

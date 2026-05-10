@@ -8,7 +8,7 @@ public abstract class ViewModelBase : ObservableObject, IDisposable
 {
     private readonly CancellationTokenSource _cts = new();
     
-    public void Dispose()
+    public virtual void Dispose()
     {
         _cts.Cancel();
         _cts.Dispose();

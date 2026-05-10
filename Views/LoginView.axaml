@@ -2,35 +2,59 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:OceanStock.ViewModels"
              xmlns:vm="using:OceanStock.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="OceanStock.Views.LoginView"
              x:DataType="vm:LoginViewModel">
 
-    
-    <Border Padding="20">
+    <Border Padding="40">
+        <StackPanel Spacing="12"
+                    MaxWidth="380"
+                    HorizontalAlignment="Center">
 
-        <StackPanel Spacing="10">
+            <TextBlock Text="Connexion"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#023E8A"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,10"/>
 
-            <TextBlock Text="Login"
-                       FontSize="24"
-                       HorizontalAlignment="Center"/>
+            <Border Background="#FFECEC"
+                    CornerRadius="8"
+                    Padding="10,8"
+                    IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#C0392B"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"/>
+            </Border>
 
-            <TextBox Watermark="Email"
+            <TextBlock Text="Email" FontWeight="SemiBold" Foreground="#1A1A1A"/>
+            <TextBox Watermark="votre@email.com"
                      Text="{Binding Email}"/>
 
-            <TextBox Watermark="Password"
+            <TextBlock Text="Mot de passe" FontWeight="SemiBold" Foreground="#1A1A1A"/>
+            <TextBox Watermark="••••••••"
                      Text="{Binding Password}"
                      PasswordChar="*"/>
 
             <Button Content="Se connecter"
+                    Background="#0077B6"
+                    Foreground="White"
+                    Padding="14,10"
+                    CornerRadius="10"
+                    HorizontalAlignment="Stretch"
                     Command="{Binding LoginCommand}"/>
-            
+
             <Button Content="Créer un compte"
+                    Background="#6C757D"
+                    Foreground="White"
+                    Padding="14,10"
+                    CornerRadius="10"
+                    HorizontalAlignment="Stretch"
                     Command="{Binding GoToRegisterCommand}"/>
 
         </StackPanel>
-
     </Border>
+
 </UserControl>
