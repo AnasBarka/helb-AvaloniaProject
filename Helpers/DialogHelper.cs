@@ -7,7 +7,6 @@ namespace OceanStock.Helpers
 {
     public static class DialogHelper
     {
-        // Fenêtre d'erreur simple
         public static async Task ShowError(Window window, string message)
         {
             var dialog = new Window
@@ -28,7 +27,6 @@ namespace OceanStock.Helpers
             await dialog.ShowDialog(window);
         }
 
-        // Fenêtre de confirmation (Oui / Non)
         public static async Task<bool> ShowConfirm(Window window, string message)
         {
             var tcs = new TaskCompletionSource<bool>();
@@ -81,7 +79,6 @@ namespace OceanStock.Helpers
                 Content = panel
             };
 
-            // Boutons
             btnYes.Click += (_, _) =>
             {
                 tcs.TrySetResult(true);
@@ -94,9 +91,7 @@ namespace OceanStock.Helpers
                 dialog.Close();
             };
 
-            // Affichage modale
             await dialog.ShowDialog(window);
-
             return await tcs.Task;
         }
     }

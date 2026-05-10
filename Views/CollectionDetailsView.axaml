@@ -8,16 +8,13 @@
         <vm:CollectionDetailsViewModel />
     </Design.DataContext>
 
-    <!-- ✅ Scroll = RESPONSIVE -->
     <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-        <!-- ✅ Conteneur principal -->
         <StackPanel Margin="20"
                     HorizontalAlignment="Center"
                     MaxWidth="550"
                     Spacing="25">
 
-            <!-- ✅ Image du poisson -->
             <Border Width="260"
                     Height="260"
                     CornerRadius="25"
@@ -25,12 +22,10 @@
                     ClipToBounds="True"
                     HorizontalAlignment="Center"
                     BoxShadow="0 10 25 #00000033">
-                
                 <Image Source="{Binding MyFish.Picture}"
-                       Stretch="UniformToFill"/>
+                       Stretch="Uniform"/>
             </Border>
 
-            <!-- ✅ Nom + prix -->
             <StackPanel HorizontalAlignment="Center"
                         Spacing="8">
 
@@ -39,13 +34,12 @@
                            FontWeight="Bold"
                            Foreground="#023E8A"/>
 
-                <TextBlock Text="{Binding MyFish.Price, StringFormat=💰 {0} €}"
+                <TextBlock Text="{Binding MyFish.Price, StringFormat={}{0} €}"
                            FontSize="22"
                            FontWeight="Bold"
                            Foreground="#0096C7"/>
             </StackPanel>
 
-            <!-- ✅ Carte détails -->
             <Border Background="White"
                     Padding="25"
                     CornerRadius="20"
@@ -53,15 +47,15 @@
 
                 <StackPanel Spacing="14">
 
-                    <TextBlock Text="{Binding MyFish.Group, StringFormat=🌊 Groupe : {0}}"
+                    <TextBlock Text="{Binding MyFish.Group, StringFormat=Groupe : {0}}"
                                FontSize="17"
                                Foreground="#595959"/>
 
-                    <TextBlock Text="{Binding MyFish.Id, StringFormat=🆔 ID : {0}}"
+                    <TextBlock Text="{Binding MyFish.Id, StringFormat=ID : {0}}"
                                FontSize="17"
                                Foreground="#595959"/>
 
-                    <TextBlock Text="{Binding MyFish.Stock, StringFormat=📦 Stock : {0}}"
+                    <TextBlock Text="{Binding MyFish.Stock, StringFormat=Stock : {0}}"
                                FontSize="17"
                                Foreground="#595959"/>
 
@@ -75,31 +69,27 @@
                             CornerRadius="12"
                             Padding="12"
                             BoxShadow="0 3 10 #00000015">
-
                         <TextBlock Text="{Binding MyFish.Description}"
                                    TextWrapping="Wrap"
                                    FontSize="15"
                                    Foreground="#333"/>
                     </Border>
-                    <!-- ✅ BTN MODIFIER -->
-                    <Button Content="✏ Modifier"
+
+                    <Button Content="Modifier"
                             Background="#0096C7"
                             Foreground="White"
                             Padding="10 8"
                             CornerRadius="10"
                             Command="{Binding EditCommand}"/>
 
-                    <!-- ✅ BTN SUPPRIMER -->
-                    <Button Content="🗑 Supprimer"
+                    <Button Content="Supprimer"
                             Background="#D9534F"
                             Foreground="White"
                             Padding="10 8"
                             CornerRadius="10"
                             Command="{Binding DeleteCommand}"/>
 
-
                 </StackPanel>
-
 
             </Border>
 

@@ -4,48 +4,66 @@
              x:Class="OceanStock.Views.UserFormView"
              x:DataType="vm:UserFormViewModel">
 
-    <StackPanel Margin="40"
-                Spacing="15"
-                Width="400">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-        <TextBlock Text="Utilisateur"
-                   FontSize="28"
-                   FontWeight="Bold"/>
+        <StackPanel Margin="40"
+                    Spacing="14"
+                    MaxWidth="420"
+                    HorizontalAlignment="Center">
 
-        <TextBox Watermark="Prénom"
-                 Text="{Binding FirstName}"/>
+            <TextBlock Text="Formulaire utilisateur"
+                       FontSize="26"
+                       FontWeight="Bold"
+                       Foreground="#023E8A"/>
 
-        <TextBox Watermark="Nom"
-                 Text="{Binding LastName}"/>
+            <TextBlock Text="Prénom" FontWeight="SemiBold" Foreground="#1A1A1A"/>
+            <TextBox Text="{Binding FirstName}" Watermark="Prénom"/>
 
-        <TextBox Watermark="Email"
-                 Text="{Binding Email}"/>
+            <TextBlock Text="Nom" FontWeight="SemiBold" Foreground="#1A1A1A"/>
+            <TextBox Text="{Binding LastName}" Watermark="Nom"/>
 
-        <ComboBox ItemsSource="{Binding Roles}"
-                  SelectedItem="{Binding SelectedRole}">
-    
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
+            <TextBlock Text="Email" FontWeight="SemiBold" Foreground="#1A1A1A"/>
+            <TextBox Text="{Binding Email}" Watermark="Email"/>
 
-        </ComboBox>
+            <TextBlock Text="Rôle" FontWeight="SemiBold" Foreground="#1A1A1A"/>
+            <ComboBox ItemsSource="{Binding Roles}"
+                      SelectedItem="{Binding SelectedRole}"
+                      HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" Foreground="#1A1A1A"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
 
-        <TextBox Watermark="Password"
-                 Text="{Binding Password}"/>
+            <TextBlock Text="Mot de passe" FontWeight="SemiBold" Foreground="#1A1A1A"/>
+            <TextBlock Text="Laisser vide pour conserver l'actuel (modification)"
+                       FontSize="11"
+                       Foreground="#555"/>
+            <TextBox Watermark="••••••••"
+                     Text="{Binding Password}"
+                     PasswordChar="*"/>
 
-        <StackPanel Orientation="Horizontal"
-                    Spacing="10">
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
 
-            <Button Content="Sauvegarder"
-                    Command="{Binding SaveCommand}"/>
+                <Button Content="Sauvegarder"
+                        Background="#0077B6"
+                        Foreground="White"
+                        Padding="14,10"
+                        CornerRadius="10"
+                        Command="{Binding SaveCommand}"/>
 
-            <Button Content="Annuler"
-                    Command="{Binding CancelCommand}"/>
+                <Button Content="Annuler"
+                        Background="#6C757D"
+                        Foreground="White"
+                        Padding="14,10"
+                        CornerRadius="10"
+                        Command="{Binding CancelCommand}"/>
+
+            </StackPanel>
 
         </StackPanel>
 
-    </StackPanel>
+    </ScrollViewer>
 
 </UserControl>

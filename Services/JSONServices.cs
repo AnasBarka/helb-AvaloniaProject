@@ -6,58 +6,48 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using OceanStock.Models;
 
-namespace OceanStock.Services
+namespace OceanStock.Services;
+
+public class JSONServices
 {
-    public class JSONServices
+    private static readonly HttpClient _httpClient = new HttpClient(new HttpClientHandler
     {
-        private static readonly HttpClient _httpClient = new HttpClient(new HttpClientHandler
+        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+    });
+
+    private const string BaseUrl = "http://185.157.245.38:8080/json";
+
+    internal async Task<List<ProductFish>> GetProductsAsync()
+    {
+        const string url = $"{BaseUrl}?FileName=ProductFish.json";
+
+        using var response = await _httpClient.GetAsync(url);
+
+        if (!response.IsSuccessStatusCode)
+            return new List<ProductFish>();
+
+        await using var contentStream = await response.Content.ReadAsStreamAsync();
+
+        return await JsonSerializer.DeserializeAsync<List<ProductFish>>(contentStream)
+               ?? new List<ProductFish>();
+    }
+
+    internal async Task SetProductsAsync(List<ProductFish> products)
+    {
+        using var memoryStream = new MemoryStream();
+        await JsonSerializer.SerializeAsync(memoryStream, products);
+        memoryStream.Position = 0;
+
+        var fileContent = new StreamContent(memoryStream)
         {
-            // ⚠️ Autorise les certificats non sécurisés (API locale)
-            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-        });
+            Headers = { ContentType = new MediaTypeHeaderValue("application/json") }
+        };
 
-        //  Adresse du serveur JSON Docker
-        private const string BaseUrl = "http://185.157.245.38:8080/json";
-        //  Charge la liste de produits depuis le serveur
-        internal async Task<List<ProductFish>> GetProductsAsync()
+        var content = new MultipartFormDataContent
         {
-            const string url = $"{BaseUrl}?FileName=ProductFish.json";
+            { fileContent, "file", "ProductFish.json" }
+        };
 
-            using var response = await _httpClient.GetAsync(url);
-
-            if (!response.IsSuccessStatusCode)
-                return new List<ProductFish>();
-
-            await using var contentStream = await response.Content.ReadAsStreamAsync();
-
-            return await JsonSerializer.DeserializeAsync<List<ProductFish>>(contentStream)
-                   ?? new List<ProductFish>();
-        }
-
-        // ✅ Envoie la liste des produits au serveur
-        internal async Task SetProductsAsync(List<ProductFish> products)
-        {
-            var url = BaseUrl;
-
-            using var memoryStream = new MemoryStream();
-            await JsonSerializer.SerializeAsync(memoryStream, products);
-            memoryStream.Position = 0;
-
-            var fileContent = new StreamContent(memoryStream)
-            {
-                Headers = { ContentType = new MediaTypeHeaderValue("application/json") }
-            };
-
-            // ✅ L’API attend "file" + nom du fichier JSON
-            var content = new MultipartFormDataContent
-            {
-                { fileContent, "file", "ProductFish.json" }
-            };
-
-            using var response = await _httpClient.PostAsync(url, content);
-
-            // Tu peux ajouter un log ici si tu veux surveiller :
-            // Console.WriteLine("API Response: " + response.StatusCode);
-        }
+        using var response = await _httpClient.PostAsync(BaseUrl, content);
     }
 }

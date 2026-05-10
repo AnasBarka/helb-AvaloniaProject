@@ -1,0 +1,135 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OceanStock.ViewModels"
+             x:Class="OceanStock.Views.StatsView"
+             x:DataType="vm:StatsViewModel">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="20" Spacing="24">
+
+            <TextBlock Text="Statistiques"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#023E8A"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Poissons par groupe -->
+            <Border Background="White" CornerRadius="14" Padding="16" BoxShadow="0 2 10 #00000015">
+                <StackPanel Spacing="12">
+
+                    <TextBlock Text="Nombre de poissons par groupe"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#023E8A"/>
+
+                    <ItemsControl ItemsSource="{Binding ByGroup}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:StatItem">
+                                <Grid ColumnDefinitions="140,*,40" Margin="0,5">
+                                    <TextBlock Text="{Binding Label}"
+                                               Foreground="#1A1A1A"
+                                               VerticalAlignment="Center"
+                                               TextWrapping="Wrap"/>
+                                    <Border Grid.Column="1"
+                                            Height="22"
+                                            Width="{Binding BarWidth}"
+                                            Background="#0096C7"
+                                            CornerRadius="4"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Count}"
+                                               Foreground="#1A1A1A"
+                                               VerticalAlignment="Center"
+                                               Margin="8,0,0,0"
+                                               FontWeight="Bold"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <!-- Poissons par utilisateur -->
+            <Border Background="White" CornerRadius="14" Padding="16" BoxShadow="0 2 10 #00000015">
+                <StackPanel Spacing="12">
+
+                    <TextBlock Text="Nombre de poissons par utilisateur"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#023E8A"/>
+
+                    <ItemsControl ItemsSource="{Binding ByUser}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:StatItem">
+                                <Grid ColumnDefinitions="140,*,40" Margin="0,5">
+                                    <TextBlock Text="{Binding Label}"
+                                               Foreground="#1A1A1A"
+                                               VerticalAlignment="Center"
+                                               TextWrapping="Wrap"/>
+                                    <Border Grid.Column="1"
+                                            Height="22"
+                                            Width="{Binding BarWidth}"
+                                            Background="#2ECC71"
+                                            CornerRadius="4"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Count}"
+                                               Foreground="#1A1A1A"
+                                               VerticalAlignment="Center"
+                                               Margin="8,0,0,0"
+                                               FontWeight="Bold"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <!-- Stock par poisson -->
+            <Border Background="White" CornerRadius="14" Padding="16" BoxShadow="0 2 10 #00000015">
+                <StackPanel Spacing="12">
+
+                    <TextBlock Text="Stock par poisson"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#023E8A"/>
+
+                    <ItemsControl ItemsSource="{Binding ByStock}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:StatItem">
+                                <Grid ColumnDefinitions="140,*,40" Margin="0,5">
+                                    <TextBlock Text="{Binding Label}"
+                                               Foreground="#1A1A1A"
+                                               VerticalAlignment="Center"
+                                               TextWrapping="Wrap"/>
+                                    <Border Grid.Column="1"
+                                            Height="22"
+                                            Width="{Binding BarWidth}"
+                                            Background="#F39C12"
+                                            CornerRadius="4"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Count}"
+                                               Foreground="#1A1A1A"
+                                               VerticalAlignment="Center"
+                                               Margin="8,0,0,0"
+                                               FontWeight="Bold"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

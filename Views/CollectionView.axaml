@@ -9,107 +9,103 @@
         <vm:CollectionViewModel />
     </Design.DataContext>
 
-    <!-- ✅ Layout principal -->
     <Border Margin="20"
             Background="#F0F8FF"
             CornerRadius="20"
             Padding="20"
             BoxShadow="0 4 25 #00000022">
 
-        <!-- ✅ Scroll responsive -->
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid RowDefinitions="Auto,*">
 
-            <!-- ✅ LISTE des produits -->
-            <ListBox ItemsSource="{Binding ProductsFish}"
-                     SelectedItem="{Binding SelectedProduct}"
-                     BorderThickness="0"
-                     Background="Transparent">
+            <TextBox Grid.Row="0"
+                     Watermark="Rechercher par nom, groupe ou ID..."
+                     Text="{Binding FilterText}"
+                     Margin="0,0,0,12"
+                     CornerRadius="10"/>
 
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
 
-                        <!-- ✅ CARTE PRODUIT (responsive & moderne) -->
-                        <Border Background="White"
-                                CornerRadius="18"
-                                Padding="15"
-                                Margin="0 0 0 20"
-                                BoxShadow="0 4 15 #00000033">
+                <ListBox ItemsSource="{Binding ProductsFish}"
+                         SelectedItem="{Binding SelectedProduct}"
+                         BorderThickness="0"
+                         Background="Transparent">
 
-                            <Grid ColumnDefinitions="Auto,*,Auto"
-                                  VerticalAlignment="Center">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
 
-                                <!-- ✅ IMAGE carrée / centrée / propre -->
-                                
-                                <Border Width="120"
-                                        Height="120"
-                                        CornerRadius="12"
-                                        Background="#E3F6FF"
-                                        ClipToBounds="True">
+                            <Border Background="White"
+                                    CornerRadius="18"
+                                    Padding="15"
+                                    Margin="0 0 0 20"
+                                    BoxShadow="0 4 15 #00000033">
 
-                                    <Image Source="{Binding Picture}"
-                                           Stretch="UniformToFill" />
-                                </Border>
+                                <Grid ColumnDefinitions="Auto,*,Auto"
+                                      VerticalAlignment="Center">
 
+                                    <Border Width="120"
+                                            Height="120"
+                                            CornerRadius="12"
+                                            Background="#E3F6FF"
+                                            ClipToBounds="True">
+                                        <Image Source="{Binding Picture}"
+                                               Stretch="Uniform"/>
+                                    </Border>
 
-                                <!-- ✅ INFO PRODUIT -->
-                                <StackPanel Grid.Column="1"
-                                            Margin="20,0"
-                                            VerticalAlignment="Center"
-                                            Spacing="6">
+                                    <StackPanel Grid.Column="1"
+                                                Margin="20,0"
+                                                VerticalAlignment="Center"
+                                                Spacing="6">
 
-                                    <TextBlock Text="{Binding Name}"
-                                               FontSize="22"
-                                               FontWeight="Bold"
-                                               Foreground="#023E8A"/>
-
-                                    <TextBlock Text="{Binding Group}"
-                                               FontSize="14"
-                                               Foreground="#6C757D"/>
-
-                                    <StackPanel Orientation="Horizontal" Spacing="15">
-                                        <TextBlock Text="{Binding Stock, StringFormat=📦 {0}}"
-                                                   Foreground="#495057"/>
-
-                                        <TextBlock Text="{Binding Price, StringFormat=💰 {0} €}"
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="22"
                                                    FontWeight="Bold"
-                                                   Foreground="#0077B6"/>
+                                                   Foreground="#023E8A"/>
+
+                                        <TextBlock Text="{Binding Group}"
+                                                   FontSize="14"
+                                                   Foreground="#6C757D"/>
+
+                                        <StackPanel Orientation="Horizontal" Spacing="15">
+                                            <TextBlock Text="{Binding Stock, StringFormat=Stock : {0}}"
+                                                       Foreground="#495057"/>
+
+                                            <TextBlock Text="{Binding Price, StringFormat={}{0} €}"
+                                                       FontWeight="Bold"
+                                                       Foreground="#0077B6"/>
+                                        </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
 
-                                <!-- ✅ BOUTON "Voir détails" -->
-                                <Button Grid.Column="2"
-                                        Content="Voir"
-                                        Padding="12"
-                                        CornerRadius="10"
-                                        Background="#00B4D8"
-                                        Foreground="White"
-                                        Command="{Binding DataContext.FromParentCommand, ElementName=Collection}"
-                                        CommandParameter="{Binding Id}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center">
+                                    <Button Grid.Column="2"
+                                            Content="Voir"
+                                            Padding="12"
+                                            CornerRadius="10"
+                                            Background="#00B4D8"
+                                            Foreground="White"
+                                            Command="{Binding DataContext.FromParentCommand, ElementName=Collection}"
+                                            CommandParameter="{Binding Id}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
 
-                                    <!-- ✅ Effets visuels -->
-                                    <Button.Styles>
-                                        <Style Selector="Button:pointerover">
-                                            <Setter Property="Background" Value="#0096C7"/>
-                                        </Style>
-                                        <Style Selector="Button:pressed">
-                                            <Setter Property="Background" Value="#0077B6"/>
-                                        </Style>
-                                    </Button.Styles>
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#0096C7"/>
+                                            </Style>
+                                        </Button.Styles>
 
-                                </Button>
+                                    </Button>
 
-                            </Grid>
+                                </Grid>
 
-                        </Border>
+                            </Border>
 
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
 
-            </ListBox>
+                </ListBox>
 
-        </ScrollViewer>
+            </ScrollViewer>
+
+        </Grid>
 
     </Border>
 

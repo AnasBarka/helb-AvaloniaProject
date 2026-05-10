@@ -6,36 +6,34 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="OceanStock.Views.RegisterView"
              x:DataType="vm:RegisterViewModel">
-    
+
     <Design.DataContext>
         <vm:RegisterViewModel />
     </Design.DataContext>
 
     <Border Padding="20">
-        <StackPanel Spacing="10">
+        <StackPanel Spacing="10" MaxWidth="400" HorizontalAlignment="Center">
 
             <TextBlock Text="Créer un compte"
                        FontSize="24"
                        HorizontalAlignment="Center"/>
 
-            <TextBox Watermark="Prénom"
-                     Text="{Binding FirstName}"/>
+            <Border Background="#FFECEC"
+                    CornerRadius="8"
+                    Padding="10,6"
+                    IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#C0392B"
+                           TextWrapping="Wrap"/>
+            </Border>
 
-            <TextBox Watermark="Nom"
-                     Text="{Binding LastName}"/>
+            <TextBox Watermark="Prénom" Text="{Binding FirstName}"/>
+            <TextBox Watermark="Nom" Text="{Binding LastName}"/>
+            <TextBox Watermark="Email" Text="{Binding Email}"/>
+            <TextBox Watermark="Mot de passe" Text="{Binding Password}" PasswordChar="*"/>
 
-            <TextBox Watermark="Email"
-                     Text="{Binding Email}"/>
-
-            <TextBox Watermark="Mot de passe"
-                     Text="{Binding Password}"
-                     PasswordChar="*"/>
-
-            <Button Content="Créer"
-                    Command="{Binding RegisterCommand}"/>
-
-            <Button Content="Retour"
-                    Command="{Binding BackCommand}"/>
+            <Button Content="Créer" Command="{Binding RegisterCommand}"/>
+            <Button Content="Retour" Command="{Binding BackCommand}"/>
 
         </StackPanel>
     </Border>

@@ -1,10 +1,10 @@
-using System;
+using System.IO;
+using System.Threading.Tasks;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Avalonia.Platform.Storage;
-using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
-using Avalonia.Media;
 using OceanStock.Helpers;
 using OceanStock.Models;
 
@@ -22,8 +22,7 @@ public partial class EditFishViewModel : ViewModelBase
     [ObservableProperty] private int price;
     [ObservableProperty] private string description;
     [ObservableProperty] private string? picturePath;
-    [ObservableProperty]
-    private IImage? picture;
+    [ObservableProperty] private IImage? picture;
 
     public EditFishViewModel(ProductFish fish, MainWindowViewModel mainVM)
     {
@@ -40,7 +39,6 @@ public partial class EditFishViewModel : ViewModelBase
         Picture = fish.Picture;
     }
 
-    // ✅ CLIQUE SUR L’IMAGE
     [RelayCommand]
     private async Task ChangeImage()
     {
@@ -55,31 +53,18 @@ public partial class EditFishViewModel : ViewModelBase
         if (files.Count == 0)
             return;
 
-        var file = files[0];
-        var path = file.Path.AbsolutePath;
+        var sourcePath = files[0].Path.LocalPath;
 
-        try
-        {
-            // ✅ Charger l’image depuis le fichier local
-            var bitmap = new Avalonia.Media.Imaging.Bitmap(path);
+        var cleanPath = ImageHelper.EnsureInAssets(sourcePath, Id);
+        var finalPath = !string.IsNullOrEmpty(cleanPath) && File.Exists(cleanPath)
+            ? cleanPath
+            : sourcePath;
 
-            // ✅ Mettre à jour le ViewModel
-            Picture = bitmap;
-            var cleanPath = ImageHelper.EnsureInAssets(path, Id);
+        Picture = ImageHelper.LoadFromDisk(finalPath) ?? Picture;
+        PicturePath = finalPath;
 
-            Picture = ImageHelper.LoadFromResource(new Uri(cleanPath));
-            PicturePath = cleanPath;
-
-            _originalFish.Picture = Picture;
-            _originalFish.PicturePath = cleanPath;
-            // ✅ Mettre à jour le modèle
-            _originalFish.Picture = bitmap;
-            _originalFish.PicturePath = path;
-        }
-        catch
-        {
-            // ignore image invalide
-        }
+        _originalFish.Picture = Picture;
+        _originalFish.PicturePath = PicturePath;
     }
 
     [RelayCommand]
@@ -99,7 +84,6 @@ public partial class EditFishViewModel : ViewModelBase
         _originalFish.PicturePath = PicturePath;
 
         await _mainVM.SaveJsonCommand.ExecuteAsync(null);
-
         _mainVM.GoToDetailsFromChildCommand.Execute(Id);
     }
 }

@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OceanStock.ViewModels"
+             x:Class="OceanStock.Views.ProfileView"
+             x:DataType="vm:ProfileViewModel">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="20"
+                    MaxWidth="450"
+                    HorizontalAlignment="Center"
+                    Spacing="16">
+
+            <TextBlock Text="Mon profil"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#023E8A"
+                       HorizontalAlignment="Center"/>
+
+            <Border Background="#FFECEC"
+                    CornerRadius="8"
+                    Padding="10,6"
+                    IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#C0392B"
+                           TextWrapping="Wrap"/>
+            </Border>
+
+            <Border Background="#EAFFEA"
+                    CornerRadius="8"
+                    Padding="10,6"
+                    IsVisible="{Binding SuccessMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Text="{Binding SuccessMessage}"
+                           Foreground="#1E7A1E"
+                           TextWrapping="Wrap"/>
+            </Border>
+
+            <Border Background="White" CornerRadius="12" Padding="14,10" BoxShadow="0 2 8 #00000015">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Email (non modifiable)" FontWeight="Bold" Foreground="#023E8A"/>
+                    <TextBlock Text="{Binding Email}" Foreground="#555"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="White" CornerRadius="12" Padding="14,10" BoxShadow="0 2 8 #00000015">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Prénom" FontWeight="Bold" Foreground="#023E8A"/>
+                    <TextBox Text="{Binding FirstName}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="White" CornerRadius="12" Padding="14,10" BoxShadow="0 2 8 #00000015">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Nom" FontWeight="Bold" Foreground="#023E8A"/>
+                    <TextBox Text="{Binding LastName}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="White" CornerRadius="12" Padding="14,10" BoxShadow="0 2 8 #00000015">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Nouveau mot de passe" FontWeight="Bold" Foreground="#023E8A"/>
+                    <TextBlock Text="Laisser vide pour ne pas le changer" FontSize="11" Foreground="Gray"/>
+                    <TextBox Text="{Binding NewPassword}" PasswordChar="*"/>
+                </StackPanel>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16">
+                <Button Content="Retour"
+                        Background="#6C757D"
+                        Foreground="White"
+                        Padding="14,10"
+                        CornerRadius="10"
+                        Command="{Binding BackCommand}"/>
+
+                <Button Content="Enregistrer"
+                        Background="#0077B6"
+                        Foreground="White"
+                        Padding="14,10"
+                        CornerRadius="10"
+                        Command="{Binding SaveCommand}"/>
+            </StackPanel>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

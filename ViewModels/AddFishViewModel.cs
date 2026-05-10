@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OceanStock.Helpers;
@@ -17,22 +18,19 @@ public partial class AddFishViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _mainVM;
     private readonly JSONServices _jsonService;
+    private readonly ScannerManager _scanner = new();
+    private string _scanBuffer = "";
 
-    // ── Champs du formulaire ────────────────────────────────────────────────
-
-    [ObservableProperty] private string id          = string.Empty;
-    [ObservableProperty] private string name        = string.Empty;
-    [ObservableProperty] private string group       = string.Empty;
-    [ObservableProperty] private int    stock       = 0;
-    [ObservableProperty] private int    price       = 0;
+    [ObservableProperty] private string id = string.Empty;
+    [ObservableProperty] private string name = string.Empty;
+    [ObservableProperty] private string group = string.Empty;
+    [ObservableProperty] private int stock = 0;
+    [ObservableProperty] private int price = 0;
     [ObservableProperty] private string description = string.Empty;
     [ObservableProperty] private string? picturePath;
     [ObservableProperty] private IImage? picture;
-
-    // Message d'erreur de validation affiché dans la vue
     [ObservableProperty] private string? errorMessage;
 
-    // Groupes prédéfinis pour le ComboBox
     public string[] Groups { get; } =
     [
         "Eau douce",
@@ -45,11 +43,35 @@ public partial class AddFishViewModel : ViewModelBase
 
     public AddFishViewModel(MainWindowViewModel mainVM)
     {
-        _mainVM      = mainVM;
+        _mainVM = mainVM;
         _jsonService = new JSONServices();
+
+        _scanner.OpenPort();
+        _scanner.SerialBuffer.Changed += OnScannerData;
     }
 
-    // ── Commande : choisir une image ────────────────────────────────────────
+    private void OnScannerData(object? sender, EventArgs e)
+    {
+        while (_scanner.SerialBuffer.Count > 0)
+            _scanBuffer += _scanner.SerialBuffer.Dequeue()?.ToString() ?? "";
+
+        var idx = _scanBuffer.IndexOfAny(['\r', '\n']);
+        if (idx < 0)
+            return;
+
+        var scanned = _scanBuffer[..idx].Trim();
+        _scanBuffer = "";
+
+        if (!string.IsNullOrWhiteSpace(scanned))
+            Dispatcher.UIThread.Post(() => Id = scanned);
+    }
+
+    public override void Dispose()
+    {
+        _scanner.SerialBuffer.Changed -= OnScannerData;
+        _scanner.Dispose();
+        base.Dispose();
+    }
 
     [RelayCommand]
     private async Task ChooseImage()
@@ -57,7 +79,7 @@ public partial class AddFishViewModel : ViewModelBase
         var files = await _mainVM.TopLevel.StorageProvider.OpenFilePickerAsync(
             new FilePickerOpenOptions
             {
-                Title         = "Choisir une image",
+                Title = "Choisir une image",
                 AllowMultiple = false,
                 FileTypeFilter = [FilePickerFileTypes.ImageAll]
             });
@@ -65,87 +87,73 @@ public partial class AddFishViewModel : ViewModelBase
         if (files.Count == 0)
             return;
 
-        var file = files[0];
-        var sourcePath = file.Path.AbsolutePath;
+        var sourcePath = files[0].Path.LocalPath;
 
-        try
-        {
-            // Copier le fichier dans Assets/ et obtenir le chemin avares://
-            var cleanPath = ImageHelper.EnsureInAssets(sourcePath, Id);
+        var cleanPath = ImageHelper.EnsureInAssets(sourcePath, Id);
+        var finalPath = !string.IsNullOrEmpty(cleanPath) && File.Exists(cleanPath)
+            ? cleanPath
+            : sourcePath;
 
-            Picture     = ImageHelper.LoadFromResource(new Uri(cleanPath));
-            PicturePath = cleanPath;
-        }
-        catch
-        {
-            // Chargement direct depuis le disque en fallback
-            Picture     = new Bitmap(sourcePath);
-            PicturePath = sourcePath;
-        }
+        Picture = ImageHelper.LoadFromDisk(finalPath);
+        PicturePath = finalPath;
     }
-
-    // ── Commande : ajouter le poisson ───────────────────────────────────────
 
     [RelayCommand]
     private async Task AddFish()
     {
-        // ── Validation ──────────────────────────────────────────────────────
         if (string.IsNullOrWhiteSpace(Id))
         {
-            ErrorMessage = "⚠ Le champ ID est obligatoire.";
+            ErrorMessage = "Le champ ID est obligatoire.";
             return;
         }
 
         if (string.IsNullOrWhiteSpace(Name))
         {
-            ErrorMessage = "⚠ Le champ Nom est obligatoire.";
+            ErrorMessage = "Le champ Nom est obligatoire.";
             return;
         }
 
         if (string.IsNullOrWhiteSpace(Group))
         {
-            ErrorMessage = "⚠ Veuillez sélectionner un groupe.";
+            ErrorMessage = "Veuillez sélectionner un groupe.";
             return;
         }
 
-        // Vérifier que l'ID n'est pas déjà utilisé
         if (MyGlobals.ProductsFish.Any(f => f.Id == Id.Trim()))
         {
-            ErrorMessage = $"⚠ Un poisson avec l'ID « {Id.Trim()} » existe déjà.";
+            ErrorMessage = $"Un article avec l'ID « {Id.Trim()} » existe déjà.";
             return;
         }
 
         ErrorMessage = null;
 
-        // ── Création de l'objet ─────────────────────────────────────────────
         var newFish = new ProductFish
         {
-            Id          = Id.Trim(),
-            Name        = Name.Trim(),
-            Group       = Group.Trim(),
-            Stock       = Stock,
-            Price       = Price,
+            Id = Id.Trim(),
+            Name = Name.Trim(),
+            Group = Group.Trim(),
+            Stock = Stock,
+            Price = Price,
             Description = Description.Trim(),
             PicturePath = PicturePath,
-            Picture     = Picture,
-            IdOwner = Session.CurrentUser.Id
+            Picture = Picture,
+            IdOwner = Session.CurrentUser!.Id
         };
 
-        // ── Ajout dans la liste globale ─────────────────────────────────────
         MyGlobals.ProductsFish.Add(newFish);
-
-        // ── Sauvegarde automatique sur le serveur JSON ──────────────────────
         await _mainVM.SaveJsonCommand.ExecuteAsync(null);
-
-        // ── Retour à la collection ──────────────────────────────────────────
         _mainVM.BackToMainCommand.Execute(null);
     }
-
-    // ── Commande : annuler ──────────────────────────────────────────────────
 
     [RelayCommand]
     private void Cancel()
     {
         _mainVM.BackToMainCommand.Execute(null);
+    }
+
+    [RelayCommand]
+    private void SimulateScan()
+    {
+        _scanner.SimulateScan("TEST-" + new Random().Next(100, 999));
     }
 }

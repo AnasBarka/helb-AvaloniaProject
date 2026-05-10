@@ -15,19 +15,16 @@
                     MaxWidth="700"
                     Spacing="20">
 
-            <!-- ✅ TITRE -->
             <TextBlock Text="Prévisualisation de l'import CSV"
                        FontSize="28"
                        FontWeight="Bold"
                        Foreground="#023E8A"
                        HorizontalAlignment="Center"/>
 
-            <!-- ✅ BOUTONS -->
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Center"
                         Spacing="15">
 
-                <!-- TOUS -->
                 <ToggleButton Content="Tous"
                               Padding="10"
                               CornerRadius="10"
@@ -41,7 +38,6 @@
                     </ToggleButton.Styles>
                 </ToggleButton>
 
-                <!-- NOUVEAUX -->
                 <ToggleButton Content="Nouveaux"
                               Padding="10"
                               CornerRadius="10"
@@ -67,10 +63,9 @@
                         </Style>
                     </ToggleButton.Styles>
                 </ToggleButton>
-               
+
             </StackPanel>
 
-            <!-- ✅ LISTE -->
             <Border Background="White"
                     CornerRadius="15"
                     Padding="15"
@@ -80,7 +75,6 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
 
-                            <!-- ✅ CARTE UNIQUE -->
                             <Border Margin="5"
                                     Padding="10"
                                     CornerRadius="12"
@@ -91,51 +85,41 @@
                                     Classes.Conflict="{Binding IsConflict}">
 
                                 <Border.Styles>
-
-                                    <!-- 🟢 NOUVEAU -->
                                     <Style Selector="Border.New">
                                         <Setter Property="BorderBrush" Value="#2ECC71"/>
                                     </Style>
-
-                                    <!-- 🟠 MODIFIÉ -->
                                     <Style Selector="Border.Modified">
                                         <Setter Property="BorderBrush" Value="#F39C12"/>
                                     </Style>
-
-                                    <!-- 🔴 CONFLIT -->
                                     <Style Selector="Border.Conflict">
                                         <Setter Property="BorderBrush" Value="#E74C3C"/>
                                     </Style>
-
                                 </Border.Styles>
 
-                                <!-- ✅ CONTENU -->
                                 <Grid ColumnDefinitions="Auto,80,*">
 
-                                    <!-- CHECKBOX -->
                                     <CheckBox Grid.Column="0"
                                               IsChecked="{Binding IsSelected}"
                                               IsEnabled="{Binding IsSelectable}"
                                               VerticalAlignment="Top"
                                               Margin="0,5,10,0"/>
 
-                                    <!-- IMAGE -->
                                     <Image Grid.Column="1"
                                            Width="70"
                                            Height="70"
                                            Source="{Binding Fish.Picture}"
-                                           Stretch="UniformToFill"
+                                           Stretch="Uniform"
                                            Margin="0,0,10,0"/>
 
-                                    <!-- INFOS -->
                                     <StackPanel Grid.Column="2" Spacing="6">
 
                                         <TextBlock Text="{Binding Fish.Name}"
                                                    FontSize="16"
-                                                   FontWeight="Bold"/>
+                                                   FontWeight="Bold"
+                                                   Foreground="#1A1A1A"/>
 
                                         <TextBlock Text="{Binding Fish.Group}"
-                                                   Foreground="Gray"/>
+                                                   Foreground="#555"/>
 
                                         <StackPanel Spacing="4">
                                             <StackPanel Orientation="Horizontal" Spacing="5">
@@ -150,7 +134,7 @@
                                         </StackPanel>
 
                                         <TextBlock Text="{Binding Fish.ShortDescription}"
-                                                   Foreground="DarkGray"
+                                                   Foreground="#666"
                                                    FontSize="13"/>
 
                                     </StackPanel>
@@ -162,7 +146,6 @@
                 </ListBox>
             </Border>
 
-            <!-- ✅ ACTIONS -->
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Center"
                         Spacing="20">

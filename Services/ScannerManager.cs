@@ -1,20 +1,17 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.IO;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Management;
 
 namespace OceanStock.Services;
 
-public partial class DeviceOrientationService
+public class ScannerManager : IDisposable
 {
     private SerialPort? mySerialPort;
-    private string? portDetected = null;
+    private string? portDetected;
     public QueueBuffer SerialBuffer = new();
-    
+
     public void OpenPort()
     {
         if (mySerialPort != null)
@@ -26,7 +23,7 @@ public partial class DeviceOrientationService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la fermeture du port: {ex.Message}");
+                Console.WriteLine("Erreur fermeture port: " + ex.Message);
             }
             finally
             {
@@ -37,9 +34,9 @@ public partial class DeviceOrientationService
         {
             if (OperatingSystem.IsWindows())
             {
-                var searcher = new System.Management.ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'");
+                var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'");
 
-                foreach (System.Management.ManagementObject queryObj in searcher.Get())
+                foreach (ManagementObject queryObj in searcher.Get())
                 {
                     string id = queryObj["PNPDeviceID"]?.ToString() ?? "";
                     string nom = queryObj["Name"]?.ToString() ?? "";
@@ -56,7 +53,8 @@ public partial class DeviceOrientationService
                         }
                     }
                 }
-            }else if (OperatingSystem.IsLinux())
+            }
+            else if (OperatingSystem.IsLinux())
             {
                 string byId = "/dev/serial/by-id";
 
@@ -77,28 +75,30 @@ public partial class DeviceOrientationService
             {
                 mySerialPort = new SerialPort
                 {
-                    BaudRate = 9600,
                     PortName = portDetected,
-                    Parity = Parity.None,
+                    BaudRate = 9600,
                     DataBits = 8,
+                    Parity = Parity.None,
                     StopBits = StopBits.One,
+                    Handshake = Handshake.None,
                     ReadTimeout = 10000,
                     WriteTimeout = 10000
                 };
 
-                mySerialPort.DataReceived += new SerialDataReceivedEventHandler(DataHandler);
+                mySerialPort.DataReceived += DataHandler;
 
                 try
                 {
                     mySerialPort.Open();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    
+                    // Port détecté mais inaccessible (ex : déjà utilisé)
                 }
             }
         }
     }
+
     public void ClosePort()
     {
         if (mySerialPort != null && mySerialPort.IsOpen)
@@ -110,7 +110,7 @@ public partial class DeviceOrientationService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la fermeture du port: {ex.Message}");
+                Console.WriteLine("Erreur fermeture port: " + ex.Message);
             }
             finally
             {
@@ -118,20 +118,28 @@ public partial class DeviceOrientationService
             }
         }
     }
+
     private void DataHandler(object sender, EventArgs arg)
     {
         SerialPort sp = (SerialPort)sender;
-
         SerialBuffer.Enqueue(sp.ReadExisting());
     }
-    
-    public sealed partial class QueueBuffer : Queue
+
+    public void SimulateScan(string barcode)
+    {
+        SerialBuffer.Enqueue(barcode + "\r\n");
+    }
+
+    public void Dispose() => ClosePort();
+
+    public sealed class QueueBuffer : Queue
     {
         public event EventHandler? Changed;
+
         public override void Enqueue(object? obj)
-        { 
+        {
             base.Enqueue(obj);
-            Changed?.Invoke(this,EventArgs.Empty);
-        }    
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

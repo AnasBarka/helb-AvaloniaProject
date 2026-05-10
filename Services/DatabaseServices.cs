@@ -13,11 +13,9 @@ public class DatabaseServices
 
     public DatabaseServices()
     {
-        const string connectionUri =
-            "mongodb://Meeeee:IAmTheBest@185.157.245.38:443/";
+        const string connectionUri = "mongodb://Meeeee:IAmTheBest@185.157.245.38:443/";
 
         var settings = MongoClientSettings.FromConnectionString(connectionUri);
-
         settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5);
         settings.SocketTimeout = TimeSpan.FromSeconds(5);
 
@@ -26,13 +24,7 @@ public class DatabaseServices
 
         _productFish = database.GetCollection<ProductFish>("Fish");
         _users = database.GetCollection<User>("Users");
-
-        Console.WriteLine("✅ MongoDB connecté → Fish + Users OK");
     }
-
-    // =========================================================
-    // USERS
-    // =========================================================
 
     public async Task<User?> GetUserByEmailAsync(string email)
     {
@@ -46,9 +38,7 @@ public class DatabaseServices
         if (user == null)
             return null;
 
-        bool isValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
-
-        return isValid ? user : null;
+        return BCrypt.Net.BCrypt.Verify(password, user.PasswordHash) ? user : null;
     }
 
     public async Task<List<User>> GetUsersAsync()
@@ -71,44 +61,28 @@ public class DatabaseServices
         await _users.ReplaceOneAsync(x => x.Id == user.Id, user);
     }
 
-    // =========================================================
-    // FISH
-    // =========================================================
-
-    // ✅ GET ALL
     public async Task<List<ProductFish>> GetFishAsync()
     {
         return await _productFish.Find(_ => true).ToListAsync();
     }
 
-    // ✅ GET BY CUSTOM ID (clé métier JSON)
     public async Task<ProductFish?> GetFishByCustomIdAsync(string customId)
     {
-        return await _productFish
-            .Find(x => x.Id == customId)
-            .FirstOrDefaultAsync();
+        return await _productFish.Find(x => x.Id == customId).FirstOrDefaultAsync();
     }
 
-    // ✅ CREATE
     public async Task CreateFishAsync(ProductFish fish)
     {
         await _productFish.InsertOneAsync(fish);
     }
 
-    // ✅ UPDATE (remplacement basé sur ID métier)
     public async Task UpdateFishAsync(ProductFish fish)
     {
-        await _productFish.ReplaceOneAsync(
-            x => x.Id == fish.Id,
-            fish
-        );
+        await _productFish.ReplaceOneAsync(x => x.Id == fish.Id, fish);
     }
 
-    // ✅ DELETE (simple, sans UI)
     public async Task DeleteFishAsync(string customId)
     {
-        await _productFish.DeleteOneAsync(
-            x => x.Id == customId
-        );
+        await _productFish.DeleteOneAsync(x => x.Id == customId);
     }
 }

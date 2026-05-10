@@ -6,32 +6,29 @@
              x:Class="OceanStock.Views.AdminView"
              x:DataType="vm:AdminViewModel">
 
-    <!-- ✅ Converter -->
     <UserControl.Resources>
         <helpers:BoolToRoleConverter x:Key="BoolToRoleConverter"/>
     </UserControl.Resources>
 
-    <Grid RowDefinitions="Auto,Auto,*"
+    <Grid RowDefinitions="Auto,*"
           Margin="20">
 
-        <!-- ✅ HEADER -->
         <StackPanel Spacing="10">
 
             <TextBlock Text="Administration des utilisateurs"
                        FontSize="28"
-                       FontWeight="Bold"/>
+                       FontWeight="Bold"
+                       Foreground="#0A2540"/>
 
-            <TextBlock Text="{Binding FilteredUsers.Count,
-                                      StringFormat='Utilisateurs : {0}'}"/>
+            <TextBlock Text="{Binding FilteredUsers.Count, StringFormat='Utilisateurs : {0}'}"
+                       Foreground="#333"/>
 
-            <!-- ✅ SEARCH -->
             <TextBox Watermark="Rechercher..."
                      Width="300"
+                     HorizontalAlignment="Left"
                      Text="{Binding SearchText}"/>
 
-            <!-- ✅ CRUD + ACTIONS -->
-            <StackPanel Orientation="Horizontal"
-                        Spacing="10">
+            <StackPanel Orientation="Horizontal" Spacing="10">
 
                 <Button Content="Ajouter"
                         Width="100"
@@ -45,7 +42,6 @@
                         Width="100"
                         Command="{Binding DeleteUserCommand}"/>
 
-                <!-- ✅ NOUVEAU BOUTON -->
                 <Button Content="Voir collection"
                         Width="150"
                         Command="{Binding ViewCollectionCommand}"/>
@@ -54,11 +50,11 @@
 
         </StackPanel>
 
-        <!-- ✅ TABLE -->
-        <Border Grid.Row="2"
-                Margin="0,20,0,0"
+        <Border Grid.Row="1"
+                Margin="0,15,0,0"
                 CornerRadius="10"
-                Padding="10">
+                Background="White"
+                Padding="5">
 
             <dg:DataGrid ItemsSource="{Binding FilteredUsers}"
                          SelectedItem="{Binding SelectedUser}"
@@ -66,7 +62,22 @@
                          AutoGenerateColumns="False"
                          GridLinesVisibility="All"
                          HeadersVisibility="Column"
-                         RowHeight="45">
+                         IsReadOnly="True"
+                         RowHeight="45"
+                         Background="White">
+
+                <dg:DataGrid.Styles>
+                    <Style Selector="dg|DataGridCell">
+                        <Setter Property="Foreground" Value="#1A1A1A"/>
+                        <Setter Property="FontSize" Value="14"/>
+                    </Style>
+                    <Style Selector="dg|DataGridColumnHeader">
+                        <Setter Property="Foreground" Value="#0A2540"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="Background" Value="#E6F4F9"/>
+                    </Style>
+                </dg:DataGrid.Styles>
 
                 <dg:DataGrid.Columns>
 
@@ -85,8 +96,10 @@
                     <dg:DataGridTemplateColumn Header="Rôle" Width="*">
                         <dg:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding IsAdmin,
-                        Converter={StaticResource BoolToRoleConverter}}" />
+                                <TextBlock Text="{Binding IsAdmin, Converter={StaticResource BoolToRoleConverter}}"
+                                           Foreground="#1A1A1A"
+                                           VerticalAlignment="Center"
+                                           Margin="5,0"/>
                             </DataTemplate>
                         </dg:DataGridTemplateColumn.CellTemplate>
                     </dg:DataGridTemplateColumn>

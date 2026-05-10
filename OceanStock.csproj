@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     </PropertyGroup>
 
     <ItemGroup>
@@ -34,6 +35,12 @@
     <ItemGroup>
         <Compile Update="Views\AddFishView.axaml.cs">
             <DependentUpon>AddFishView.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="Views\ProfileView.axaml.cs">
+            <DependentUpon>ProfileView.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="Views\StatsView.axaml.cs">
+            <DependentUpon>StatsView.axaml</DependentUpon>
         </Compile>
     </ItemGroup>
 </Project>

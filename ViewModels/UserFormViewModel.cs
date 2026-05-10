@@ -14,32 +14,20 @@ public partial class UserFormViewModel : ViewModelBase
     private readonly DatabaseServices _db;
 
     private readonly bool _isEdit;
-
     private string _id = "";
     private string _existingPasswordHash = "";
 
-    [ObservableProperty]
-    private string firstName = "";
+    [ObservableProperty] private string firstName = "";
+    [ObservableProperty] private string lastName = "";
+    [ObservableProperty] private string email = "";
+    [ObservableProperty] private string password = "";
+    [ObservableProperty] private RoleOption selectedRole;
 
-    [ObservableProperty]
-    private string lastName = "";
-
-    [ObservableProperty]
-    private string email = "";
-
-    [ObservableProperty]
-    private string password = "";
-
-    // ✅ Liste des rôles (SANS tuple)
     public List<RoleOption> Roles { get; } = new()
     {
         new RoleOption { Name = "User", Value = false },
         new RoleOption { Name = "Admin", Value = true }
     };
-
-    // ✅ Role sélectionné
-    [ObservableProperty]
-    private RoleOption selectedRole;
 
     public UserFormViewModel(MainWindowViewModel mainVM, User? user)
     {
@@ -49,21 +37,15 @@ public partial class UserFormViewModel : ViewModelBase
         if (user != null)
         {
             _isEdit = true;
-
             _id = user.Id;
-
             FirstName = user.FirstName;
             LastName = user.LastName;
             Email = user.Email;
-
-            // ✅ sélection correcte
             SelectedRole = Roles.First(r => r.Value == user.IsAdmin);
-
             _existingPasswordHash = user.PasswordHash;
         }
         else
         {
-            // ✅ défaut = User
             SelectedRole = Roles.First(r => r.Value == false);
         }
     }
@@ -89,16 +71,9 @@ public partial class UserFormViewModel : ViewModelBase
         }
         else
         {
-            string finalPasswordHash;
-
-            if (!string.IsNullOrWhiteSpace(Password))
-            {
-                finalPasswordHash = BCrypt.Net.BCrypt.HashPassword(Password);
-            }
-            else
-            {
-                finalPasswordHash = _existingPasswordHash;
-            }
+            string finalPasswordHash = string.IsNullOrWhiteSpace(Password)
+                ? _existingPasswordHash
+                : BCrypt.Net.BCrypt.HashPassword(Password);
 
             var user = new User
             {

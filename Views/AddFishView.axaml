@@ -12,7 +12,7 @@
                     Spacing="18">
 
             <!-- Titre -->
-            <TextBlock Text="➕ Ajouter un Poisson"
+            <TextBlock Text="Ajouter un Poisson"
                        FontSize="28"
                        FontWeight="Bold"
                        Foreground="#023E8A"
@@ -48,8 +48,9 @@
                                     VerticalAlignment="Center"
                                     Spacing="8"
                                     IsVisible="{Binding Picture, Converter={x:Static ObjectConverters.IsNull}}">
-                            <TextBlock Text="📷"
-                                       FontSize="40"
+                            <TextBlock Text="[ photo ]"
+                                       FontSize="16"
+                                       Foreground="#0077B6"
                                        HorizontalAlignment="Center"/>
                             <TextBlock Text="Choisir une image"
                                        FontSize="13"
@@ -78,13 +79,23 @@
                            TextWrapping="Wrap"/>
             </Border>
 
-            <!-- ID (focusable pour scanner USB) -->
+            <!-- ID -->
             <Border Background="White"
                     CornerRadius="12"
                     Padding="14,10"
                     BoxShadow="0 2 8 #00000015">
                 <StackPanel Spacing="6">
-                    <TextBlock Text="ID" FontWeight="Bold" Foreground="#023E8A"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="ID" FontWeight="Bold" Foreground="#023E8A"
+                                   VerticalAlignment="Center"/>
+                        <Button Content="Simuler un scan"
+                                FontSize="11"
+                                Padding="6,3"
+                                Background="#6C757D"
+                                Foreground="White"
+                                CornerRadius="6"
+                                Command="{Binding SimulateScanCommand}"/>
+                    </StackPanel>
                     <TextBox Text="{Binding Id}"
                              Watermark="Ex : 001  (ou scanner le QR code)"
                              x:Name="IdBox"/>
@@ -175,7 +186,7 @@
                     </Button.Styles>
                 </Button>
 
-                <Button Content="➕ Ajouter"
+                <Button Content="Ajouter"
                         Background="#0077B6"
                         Foreground="White"
                         Padding="14,10"
