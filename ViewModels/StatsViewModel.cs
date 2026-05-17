@@ -20,16 +20,14 @@ public partial class StatsViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _mainVM;
 
-    // Stats personnelles (tout le monde)
     public ObservableCollection<StatItem> ByGroup { get; } = new();
     public ObservableCollection<StatItem> ByStock { get; } = new();
 
-    // Stats globales (admin uniquement)
     public ObservableCollection<StatItem> ByGroupGlobal { get; } = new();
     public ObservableCollection<StatItem> ByStockGlobal { get; } = new();
     public ObservableCollection<StatItem> ByUser { get; } = new();
 
-    // NOUVEAU
+ 
     public bool IsAdmin => Session.CurrentUser?.IsAdmin == true;
 
     public StatsViewModel(MainWindowViewModel mainVM)
@@ -52,7 +50,6 @@ public partial class StatsViewModel : ViewModelBase
         }
     }
 
-    // NOUVEAU — reçoit la liste source et la collection cible
     private void BuildGroupStats(List<ProductFish> fish, ObservableCollection<StatItem> target)
     {
         var grouped = fish
@@ -103,7 +100,6 @@ public partial class StatsViewModel : ViewModelBase
         }
     }
 
-    // NOUVEAU — reçoit la liste source et la collection cible
     private void BuildStockStats(List<ProductFish> fish, ObservableCollection<StatItem> target)
     {
         var items = fish.OrderByDescending(f => f.Stock).ToList();

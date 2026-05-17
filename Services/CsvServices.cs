@@ -100,7 +100,6 @@ public class CsvServices
                 }
             }
 
-            // ✅ APRÈS — charge via avares:// directement
             if (obj is ProductFish fish && !string.IsNullOrWhiteSpace(fish.PicturePath))
             {
                 try
@@ -132,17 +131,14 @@ public class CsvServices
     {
         var allProperties = typeof(T).GetProperties();
 
-        // On garde seulement les propriétés cochées par l'utilisateur
         var properties = allProperties
             .Where(p => selectedColumns.Contains(p.Name))
             .ToArray();
 
         var csv = new StringBuilder();
 
-        // En-tête avec les colonnes choisies
         csv.AppendLine(string.Join(";", properties.Select(p => p.Name)));
 
-        // Lignes
         foreach (var item in data)
         {
             var values = properties.Select(p => p.GetValue(item)?.ToString() ?? "");

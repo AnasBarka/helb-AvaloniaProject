@@ -9,12 +9,11 @@ using OceanStock.Services;
 
 namespace OceanStock.ViewModels;
 
-// Représente une colonne sélectionnable
 public partial class ColumnItem : ObservableObject
 {
-    public string Name { get; set; } = "";          // texte affiché à l'écran
-    public string PropertyName { get; set; } = "";  // nom réel de la propriété C#
-    [ObservableProperty] private bool isSelected = true; // cochée par défaut
+    public string Name { get; set; } = "";         
+    public string PropertyName { get; set; } = "";  
+    [ObservableProperty] private bool isSelected = true; 
 }
 
 public partial class ExportPreviewViewModel : ViewModelBase
@@ -35,7 +34,6 @@ public partial class ExportPreviewViewModel : ViewModelBase
         _mainVM = mainVM;
         _csvService = csvService;
 
-        // Colonnes disponibles
         var availableColumns = new List<ColumnItem>
         {
             new() { Name = "ID",          PropertyName = "Id" },
@@ -59,7 +57,6 @@ public partial class ExportPreviewViewModel : ViewModelBase
             Columns.Add(col);
         }
 
-        // Lignes (poissons)
         foreach (var fish in data)
         {
             var item = new ExportPreviewItem(fish);

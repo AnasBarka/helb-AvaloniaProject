@@ -9,8 +9,8 @@
         x:Class="OceanStock.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         x:Name="Main"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="Fish Manager">
+        Icon="/Assets/Fishico.ico"
+        Title="OceanStock">
 
     <Window.Styles>
         <Style Selector="Button">
@@ -28,12 +28,12 @@
 
         <Border Grid.Row="0" Background="#0A2540" Padding="15">
             <StackPanel>
-                <TextBlock Text="Fish Manager"
+                <TextBlock Text="OceanStock"
                            Foreground="White"
                            FontSize="26"
                            FontWeight="Bold"
                            VerticalAlignment="Center"/>
-                <TextBlock Text="Version 1.0"
+                <TextBlock Text="Version 1.1"
                            Foreground="#B0C4DE"
                            FontSize="14"
                            Margin="2,2,0,0"/>
