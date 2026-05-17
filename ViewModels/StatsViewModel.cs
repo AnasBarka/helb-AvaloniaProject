@@ -20,22 +20,42 @@ public partial class StatsViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _mainVM;
 
+    // Stats personnelles (tout le monde)
     public ObservableCollection<StatItem> ByGroup { get; } = new();
-    public ObservableCollection<StatItem> ByUser { get; } = new();
     public ObservableCollection<StatItem> ByStock { get; } = new();
+
+    // Stats globales (admin uniquement)
+    public ObservableCollection<StatItem> ByGroupGlobal { get; } = new();
+    public ObservableCollection<StatItem> ByStockGlobal { get; } = new();
+    public ObservableCollection<StatItem> ByUser { get; } = new();
+
+    // NOUVEAU
+    public bool IsAdmin => Session.CurrentUser?.IsAdmin == true;
 
     public StatsViewModel(MainWindowViewModel mainVM)
     {
         _mainVM = mainVM;
 
-        BuildGroupStats();
-        BuildStockStats();
-        _ = BuildUserStats();
+        // Stats perso filtrées par utilisateur connecté
+        BuildGroupStats(MyGlobals.ProductsFish
+            .Where(f => f.IdOwner == Session.CurrentUser!.Id).ToList(), ByGroup);
+
+        BuildStockStats(MyGlobals.ProductsFish
+            .Where(f => f.IdOwner == Session.CurrentUser!.Id).ToList(), ByStock);
+
+        // Stats globales seulement pour l'admin
+        if (IsAdmin)
+        {
+            BuildGroupStats(MyGlobals.ProductsFish.ToList(), ByGroupGlobal);
+            BuildStockStats(MyGlobals.ProductsFish.ToList(), ByStockGlobal);
+            _ = BuildUserStats();
+        }
     }
 
-    private void BuildGroupStats()
+    // NOUVEAU — reçoit la liste source et la collection cible
+    private void BuildGroupStats(List<ProductFish> fish, ObservableCollection<StatItem> target)
     {
-        var grouped = MyGlobals.ProductsFish
+        var grouped = fish
             .GroupBy(f => string.IsNullOrWhiteSpace(f.Group) ? "Non défini" : f.Group)
             .Select(g => new { Label = g.Key, Count = g.Count() })
             .OrderByDescending(x => x.Count)
@@ -45,7 +65,7 @@ public partial class StatsViewModel : ViewModelBase
 
         foreach (var item in grouped)
         {
-            ByGroup.Add(new StatItem
+            target.Add(new StatItem
             {
                 Label = item.Label,
                 Count = item.Count,
@@ -83,21 +103,19 @@ public partial class StatsViewModel : ViewModelBase
         }
     }
 
-    private void BuildStockStats()
+    // NOUVEAU — reçoit la liste source et la collection cible
+    private void BuildStockStats(List<ProductFish> fish, ObservableCollection<StatItem> target)
     {
-        var items = MyGlobals.ProductsFish
-            .OrderByDescending(f => f.Stock)
-            .ToList();
-
+        var items = fish.OrderByDescending(f => f.Stock).ToList();
         int max = items.Count > 0 ? items.Max(f => f.Stock) : 1;
 
-        foreach (var fish in items)
+        foreach (var f in items)
         {
-            ByStock.Add(new StatItem
+            target.Add(new StatItem
             {
-                Label = fish.Name,
-                Count = fish.Stock,
-                BarWidth = max == 0 ? 0 : fish.Stock * 250.0 / max
+                Label = f.Name,
+                Count = f.Stock,
+                BarWidth = max == 0 ? 0 : f.Stock * 250.0 / max
             });
         }
     }
