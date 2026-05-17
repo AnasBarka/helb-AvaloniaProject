@@ -100,9 +100,26 @@ public class CsvServices
                 }
             }
 
+            // ✅ APRÈS — charge via avares:// directement
             if (obj is ProductFish fish && !string.IsNullOrWhiteSpace(fish.PicturePath))
             {
-                fish.Picture = ImageHelper.LoadFromDisk(fish.PicturePath);
+                try
+                {
+                    if (fish.PicturePath.StartsWith("avares://"))
+                    {
+                        var uri = new Uri(fish.PicturePath);
+                        fish.Picture = new Avalonia.Media.Imaging.Bitmap(
+                            Avalonia.Platform.AssetLoader.Open(uri));
+                    }
+                    else
+                    {
+                        fish.Picture = ImageHelper.LoadFromDisk(fish.PicturePath);
+                    }
+                }
+                catch
+                {
+                    fish.Picture = null;
+                }
             }
 
             list.Add(obj);
