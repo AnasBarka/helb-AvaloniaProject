@@ -23,6 +23,7 @@ public partial class EditFishViewModel : ViewModelBase
     [ObservableProperty] private string description;
     [ObservableProperty] private string? picturePath;
     [ObservableProperty] private IImage? picture;
+    [ObservableProperty] private string? errorMessage;
 
     public EditFishViewModel(ProductFish fish, MainWindowViewModel mainVM)
     {
@@ -76,6 +77,29 @@ public partial class EditFishViewModel : ViewModelBase
     [RelayCommand]
     private async Task Save()
     {
+        if (string.IsNullOrWhiteSpace(Name))
+        {
+            ErrorMessage = "Le champ Nom est obligatoire";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(Group))
+        {
+            ErrorMessage = "veuillez selectionner un group";
+            return;
+        }
+        if (Stock < 0)
+        {
+            ErrorMessage = "Le Stock ne peut pas etre negatif";
+            return;
+        }
+        if (Price < 0)
+        {
+            ErrorMessage = "Le Prix ne peut pas etre negatif";
+            return;
+        }
+
+        ErrorMessage = null;
+        
         _originalFish.Name = Name;
         _originalFish.Group = Group;
         _originalFish.Stock = Stock;

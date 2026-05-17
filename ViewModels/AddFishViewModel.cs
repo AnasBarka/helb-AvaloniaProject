@@ -119,6 +119,18 @@ public partial class AddFishViewModel : ViewModelBase
             return;
         }
 
+        if (Price < 0)
+        {
+            ErrorMessage = "Le prix ne peut pas etre negatif";
+            return;
+        }
+
+        if (Stock < 0)
+        {
+            ErrorMessage = "Le stock ne peut pas etre negatif";
+            return;
+        }
+
         if (MyGlobals.ProductsFish.Any(f => f.Id == Id.Trim()))
         {
             ErrorMessage = $"Un article avec l'ID « {Id.Trim()} » existe déjà.";

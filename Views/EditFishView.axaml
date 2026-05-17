@@ -64,6 +64,17 @@
                        FontSize="12"
                        Foreground="Gray"
                        HorizontalAlignment="Center"/>
+            
+            <!-- Message d'erreur -->
+            <Border Background="#FFECEC"
+                    CornerRadius="10"
+                    Padding="12,8"
+                    IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#C0392B"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"/>
+            </Border>
 
             <StackPanel>
                 <TextBlock Text="Nom" FontWeight="Bold"/>
