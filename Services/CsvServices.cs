@@ -110,16 +110,22 @@ public class CsvServices
 
         return list;
     }
-
-    public async Task SaveDataAsync<T>(List<T> data)
+    
+    public async Task SaveDataAsync<T>(List<T> data, List<string> selectedColumns)
     {
-        var properties = typeof(T).GetProperties()
-            .Where(p => p.PropertyType.Namespace != "Avalonia.Media")
+        var allProperties = typeof(T).GetProperties();
+
+        // On garde seulement les propriétés cochées par l'utilisateur
+        var properties = allProperties
+            .Where(p => selectedColumns.Contains(p.Name))
             .ToArray();
 
         var csv = new StringBuilder();
+
+        // En-tête avec les colonnes choisies
         csv.AppendLine(string.Join(";", properties.Select(p => p.Name)));
 
+        // Lignes
         foreach (var item in data)
         {
             var values = properties.Select(p => p.GetValue(item)?.ToString() ?? "");
