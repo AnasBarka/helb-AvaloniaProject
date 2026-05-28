@@ -30,6 +30,7 @@ public partial class CollectionViewModel : ViewModelBase
 
         _scanner.OpenPort();
         _scanner.SerialBuffer.Changed += OnScannerData;
+        InitializeScannerAsync();
 
         foreach (var p in MyGlobals.ProductsFish)
         {
@@ -43,6 +44,12 @@ public partial class CollectionViewModel : ViewModelBase
                 ProductsFish.Add(p);
             }
         }
+    }
+
+    private async void InitializeScannerAsync()
+    {
+        await _scanner.OpenPortAsynk();
+        _scanner.SerialBuffer.Changed += OnScannerData;
     }
 
     partial void OnFilterTextChanged(string value)

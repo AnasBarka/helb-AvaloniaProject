@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.IO.Ports;
 using System.Management;
+using System.Threading.Tasks;
 
 namespace OceanStock.Services;
 
@@ -97,6 +98,12 @@ public class ScannerManager : IDisposable
                 }
             }
         }
+    }
+
+    //verif pour ne pas bloquer le thread UI
+    public async Task OpenPortAsynk()
+    {
+        await Task.Run(() => OpenPort());
     }
 
     public void ClosePort()

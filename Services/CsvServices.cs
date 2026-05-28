@@ -23,6 +23,8 @@ public class CsvServices
     public async Task<List<T>> LoadDataAsync<T>() where T : new()
     {
         var list = new List<T>();
+        // Liste pour stocker toutes les erreurs rencontrees pendant l'import
+        var errors = new List<string>();
 
         var csvType = new FilePickerFileType("Fichiers CSV")
         {
@@ -32,7 +34,7 @@ public class CsvServices
 
         var files = await _topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Sélectionnez un fichier CSV",
+            Title = "Selectionnez un fichier CSV",
             AllowMultiple = false,
             FileTypeFilter = new[] { csvType }
         });
@@ -47,8 +49,13 @@ public class CsvServices
         while (!reader.EndOfStream)
             lines.Add(await reader.ReadLineAsync() ?? "");
 
-        if (lines.Count == 0)
+        // Si le fichier est vide ou n'a pas de donnees, on arrete tout de suite
+        if (lines.Count < 2)
+        {
+            await DialogHelper.ShowError(_topLevel as Window,
+                "Le fichier CSV est vide ou ne contient pas de donnees.");
             return list;
+        }
 
         var headers = lines[0].Split(';', StringSplitOptions.TrimEntries);
         var properties = typeof(T).GetProperties();
@@ -58,8 +65,18 @@ public class CsvServices
             if (string.IsNullOrWhiteSpace(lines[i]))
                 continue;
 
-            var obj = new T();
             var values = lines[i].Split(';');
+
+            // On verifie que la ligne a le meme nombre de colonnes que les en-tetes
+            if (values.Length != headers.Length)
+            {
+                errors.Add($"Ligne {i + 1} : {values.Length} colonne(s) trouvee(s) au lieu de {headers.Length}.");
+                continue;
+            }
+
+            var obj = new T();
+            // Pour savoir si une erreur a ete trouvee sur cette ligne
+            bool lineHasError = false;
 
             for (int j = 0; j < headers.Length && j < values.Length; j++)
             {
@@ -86,7 +103,26 @@ public class CsvServices
                     object? convertedValue;
 
                     if (property.PropertyType == typeof(int))
-                        convertedValue = int.TryParse(rawValue, out var n) ? n : 0;
+                    {
+                        // Verification stricte : on rejette les valeurs non entieres
+                        if (!int.TryParse(rawValue, out var n))
+                        {
+                            errors.Add($"Ligne {i + 1}, colonne '{header}' : '{rawValue}' n'est pas un entier valide.");
+                            lineHasError = true;
+                            break;
+                        }
+
+                        // Stock et Price ne peuvent pas etre negatifs
+                        if (n < 0 && (header.Equals("Stock", StringComparison.OrdinalIgnoreCase) ||
+                                      header.Equals("Price", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            errors.Add($"Ligne {i + 1}, colonne '{header}' : la valeur ne peut pas etre negative ({n}).");
+                            lineHasError = true;
+                            break;
+                        }
+
+                        convertedValue = n;
+                    }
                     else if (property.PropertyType == typeof(string))
                         convertedValue = rawValue;
                     else
@@ -96,37 +132,63 @@ public class CsvServices
                 }
                 catch
                 {
-                    // valeur incompatible ignorée
+                    // Si la conversion echoue, on note l'erreur et on passe a la ligne suivante
+                    errors.Add($"Ligne {i + 1}, colonne '{header}' : impossible de convertir '{rawValue}'."); 
+                    lineHasError = true;
+                    break;
                 }
             }
 
-            if (obj is ProductFish fish && !string.IsNullOrWhiteSpace(fish.PicturePath))
+            // Si une erreur a ete trouvee sur cette ligne, on passe a la suivante
+            if (lineHasError)
+                continue;
+
+            if (obj is ProductFish importedFish)
             {
-                try
+                // Verification : l'ID ne doit pas deja exister dans les donnees importees
+                if (list.Any(x => x is ProductFish pf && pf.Id == importedFish.Id))
                 {
-                    if (fish.PicturePath.StartsWith("avares://"))
-                    {
-                        var uri = new Uri(fish.PicturePath);
-                        fish.Picture = new Avalonia.Media.Imaging.Bitmap(
-                            Avalonia.Platform.AssetLoader.Open(uri));
-                    }
-                    else
-                    {
-                        fish.Picture = ImageHelper.LoadFromDisk(fish.PicturePath);
-                    }
+                    errors.Add($"Ligne {i + 1} : l'ID '{importedFish.Id}' est en doublon.");
+                    continue;
                 }
-                catch
+
+                // Chargement de l'image si disponible
+                if (!string.IsNullOrWhiteSpace(importedFish.PicturePath))
                 {
-                    fish.Picture = null;
+                    try
+                    {
+                        if (importedFish.PicturePath.StartsWith("avares://"))
+                        {
+                            var uri = new Uri(importedFish.PicturePath);
+                            importedFish.Picture = new Avalonia.Media.Imaging.Bitmap(
+                                Avalonia.Platform.AssetLoader.Open(uri));
+                        }
+                        else
+                        {
+                            importedFish.Picture = ImageHelper.LoadFromDisk(importedFish.PicturePath);
+                        }
+                    }
+                    catch
+                    {
+                        // Si l'image n'est pas trouvee, on met null sans bloquer l'import
+                        importedFish.Picture = null;
+                    }
                 }
             }
 
             list.Add(obj);
         }
 
+        // Si des erreurs ont ete rencontrees, on les affiche toutes ensemble a la fin
+        if (errors.Count > 0)
+        {
+            string message = $"{errors.Count} erreur(s) detectee(s) :\n\n" + string.Join("\n", errors);
+            await DialogHelper.ShowError(_topLevel as Window, message);
+        }
+
         return list;
     }
-    
+
     public async Task SaveDataAsync<T>(List<T> data, List<string> selectedColumns)
     {
         var allProperties = typeof(T).GetProperties();

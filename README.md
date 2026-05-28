@@ -22,4 +22,4 @@ Projet académique / pédagogique
 ##Admin user
 
 email:anas@test.com
-mdp:123
+mdp:321

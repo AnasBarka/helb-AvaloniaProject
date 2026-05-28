@@ -18,7 +18,7 @@ public class ProductFish
     public string? PicturePath { get; set; }
 
     [BsonIgnore]
-    internal IImage? Picture { get; set; }
+    public IImage? Picture { get; set; }
 
     public string ShortDescription
     {
