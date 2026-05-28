@@ -7,10 +7,6 @@
              x:Class="OceanStock.Views.ExportPreviewView"
              x:DataType="vm:ExportPreviewViewModel">
 
-    <Design.DataContext>
-        <vm:ExportPreviewViewModel/>
-    </Design.DataContext>
-
     <ScrollViewer VerticalScrollBarVisibility="Auto">
 
         <StackPanel Margin="20"

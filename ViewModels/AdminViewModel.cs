@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OceanStock.Helpers;
 using OceanStock.Models;
 using OceanStock.Services;
 
@@ -25,7 +26,7 @@ public partial class AdminViewModel : ViewModelBase
     public AdminViewModel(MainWindowViewModel mainVM)
     {
         _mainVM = mainVM;
-        _db = new DatabaseServices();
+        _db = DatabaseServices.Instance;
 
         if (Session.CurrentUser?.IsAdmin != true)
         {
@@ -38,14 +39,18 @@ public partial class AdminViewModel : ViewModelBase
 
     private async Task LoadUsers()
     {
-        var users = await _db.GetUsersAsync();
-
-        Users.Clear();
-
-        foreach (var u in users)
-            Users.Add(u);
-
-        ApplyFilter();
+        try
+        {
+            var users = await _db.GetUsersAsync();
+            Users.Clear();
+            foreach (var u in users)
+                Users.Add(u);
+            ApplyFilter();
+        }
+        catch (Exception)
+        {
+            // En cas d'erreur réseau, on reste sur la page vide
+        }
     }
 
     partial void OnSearchTextChanged(string value)
@@ -80,9 +85,27 @@ public partial class AdminViewModel : ViewModelBase
         if (SelectedUser == null)
             return;
 
-        await _db.DeleteUserAsync(SelectedUser.Id);
-        Users.Remove(SelectedUser);
-        ApplyFilter();
+        // On ne peut pas supprimer son propre compte
+        if (SelectedUser.Id == Session.CurrentUser?.Id)
+            return;
+
+        var confirmed = await DialogHelper.ShowConfirm(
+            (Avalonia.Controls.Window)_mainVM.TopLevel,
+            $"Supprimer l'utilisateur {SelectedUser.FirstName} {SelectedUser.LastName} ?");
+
+        if (!confirmed)
+            return;
+
+        try
+        {
+            await _db.DeleteUserAsync(SelectedUser.Id);
+            Users.Remove(SelectedUser);
+            ApplyFilter();
+        }
+        catch (Exception)
+        {
+            // Erreur réseau silencieuse — l'utilisateur reste dans la liste
+        }
     }
 
     [RelayCommand]

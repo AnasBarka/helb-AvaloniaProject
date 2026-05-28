@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Avalonia.Media;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -18,6 +19,7 @@ public class ProductFish
     public string? PicturePath { get; set; }
 
     [BsonIgnore]
+    [JsonIgnore]
     public IImage? Picture { get; set; }
 
     public string ShortDescription

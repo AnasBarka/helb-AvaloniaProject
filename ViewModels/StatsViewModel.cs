@@ -73,7 +73,7 @@ public partial class StatsViewModel : ViewModelBase
 
     private async Task BuildUserStats()
     {
-        var db = new DatabaseServices();
+        var db = DatabaseServices.Instance;
         var users = await db.GetUsersAsync();
 
         var grouped = MyGlobals.ProductsFish

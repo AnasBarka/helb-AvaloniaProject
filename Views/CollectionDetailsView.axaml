@@ -4,10 +4,6 @@
              x:Class="OceanStock.Views.CollectionDetailsView"
              x:DataType="vm:CollectionDetailsViewModel">
 
-    <Design.DataContext>
-        <vm:CollectionDetailsViewModel />
-    </Design.DataContext>
-
     <ScrollViewer VerticalScrollBarVisibility="Auto">
 
         <StackPanel Margin="20"
@@ -80,14 +76,16 @@
                             Foreground="White"
                             Padding="10 8"
                             CornerRadius="10"
-                            Command="{Binding EditCommand}"/>
+                            Command="{Binding EditCommand}"
+                            IsVisible="{Binding CanModify}"/>
 
                     <Button Content="Supprimer"
                             Background="#D9534F"
                             Foreground="White"
                             Padding="10 8"
                             CornerRadius="10"
-                            Command="{Binding DeleteCommand}"/>
+                            Command="{Binding DeleteCommand}"
+                            IsVisible="{Binding CanModify}"/>
 
                 </StackPanel>
 

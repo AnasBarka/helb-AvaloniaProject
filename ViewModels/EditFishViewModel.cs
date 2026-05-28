@@ -63,9 +63,6 @@ public partial class EditFishViewModel : ViewModelBase
 
         Picture = ImageHelper.LoadFromDisk(finalPath) ?? Picture;
         PicturePath = finalPath;
-
-        _originalFish.Picture = Picture;
-        _originalFish.PicturePath = PicturePath;
     }
 
     [RelayCommand]
@@ -79,32 +76,36 @@ public partial class EditFishViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(Name))
         {
-            ErrorMessage = "Le champ Nom est obligatoire";
+            ErrorMessage = "Le champ Nom est obligatoire.";
             return;
         }
+
         if (string.IsNullOrWhiteSpace(Group))
         {
-            ErrorMessage = "veuillez selectionner un group";
+            ErrorMessage = "Veuillez sélectionner un groupe.";
             return;
         }
+
         if (Stock < 0)
         {
-            ErrorMessage = "Le Stock ne peut pas etre negatif";
+            ErrorMessage = "Le stock ne peut pas être négatif.";
             return;
         }
+
         if (Price < 0)
         {
-            ErrorMessage = "Le Prix ne peut pas etre negatif";
+            ErrorMessage = "Le prix ne peut pas être négatif.";
             return;
         }
 
         ErrorMessage = null;
-        
+
         _originalFish.Name = Name;
         _originalFish.Group = Group;
         _originalFish.Stock = Stock;
         _originalFish.Price = Price;
         _originalFish.Description = Description;
+        _originalFish.Picture = Picture;
         _originalFish.PicturePath = PicturePath;
 
         await _mainVM.SaveJsonCommand.ExecuteAsync(null);

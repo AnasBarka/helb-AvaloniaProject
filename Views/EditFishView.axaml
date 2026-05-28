@@ -4,10 +4,6 @@
              x:Class="OceanStock.Views.EditFishView"
              x:DataType="vm:EditFishViewModel">
 
-    <Design.DataContext>
-        <vm:EditFishViewModel />
-    </Design.DataContext>
-
     <ScrollViewer VerticalScrollBarVisibility="Auto">
 
         <StackPanel Margin="20"

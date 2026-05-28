@@ -33,15 +33,23 @@ public static class ImageHelper
         }
     }
 
-    // Copie l'image dans le dossier Assets local et retourne le chemin disque.
+    // Dossier permanent dans AppData (survit aux rebuilds et aux cleans)
+    private static string GetAssetsDir()
+    {
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        return Path.Combine(appData, "OceanStock", "Assets");
+    }
+
+    // Copie l'image dans AppData\OceanStock\Assets\ et retourne le chemin absolu.
+    // Retourne "" si la source est invalide ou introuvable.
     public static string EnsureInAssets(string? sourcePath, string fishId)
     {
         if (string.IsNullOrWhiteSpace(sourcePath))
             return "";
 
-        var assetsDir = Path.Combine(AppContext.BaseDirectory, "Assets");
+        var assetsDir = GetAssetsDir();
 
-        // Chemin avares:// stocké avant la correction → on tente de retrouver le fichier sur disque
+        // Chemin avares:// (ancienne convention) : on cherche dans AppData
         if (sourcePath.StartsWith("avares://OceanStock/Assets/", StringComparison.OrdinalIgnoreCase))
         {
             var fileName = sourcePath["avares://OceanStock/Assets/".Length..];
@@ -49,16 +57,41 @@ public static class ImageHelper
             return File.Exists(diskPath) ? diskPath : "";
         }
 
-        // Déjà dans notre dossier Assets sur disque
+        // Déjà dans notre dossier AppData → rien à faire
         if (sourcePath.StartsWith(assetsDir, StringComparison.OrdinalIgnoreCase))
             return sourcePath;
 
-        // Chemin disque externe → copier dans Assets
+        // Migration : chemin venant de l'ancien bin/Assets → on tente de trouver le fichier dans AppData
+        var binAssets = Path.Combine(AppContext.BaseDirectory, "Assets");
+        if (sourcePath.StartsWith(binAssets, StringComparison.OrdinalIgnoreCase))
+        {
+            var fileName = Path.GetFileName(sourcePath);
+            var migrated = Path.Combine(assetsDir, fileName);
+            if (File.Exists(migrated))
+                return migrated;
+            // tenter de copier depuis bin si le fichier existe encore
+            if (File.Exists(sourcePath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(assetsDir);
+                    File.Copy(sourcePath, migrated, overwrite: false);
+                    return migrated;
+                }
+                catch { }
+            }
+            return "";
+        }
+
+        // Chemin externe → copier dans AppData
+        if (!File.Exists(sourcePath))
+            return "";
+
         try
         {
             Directory.CreateDirectory(assetsDir);
-            var fileName = Path.GetFileName(sourcePath);
-            var destPath = Path.Combine(assetsDir, fileName);
+            var destFileName = Path.GetFileName(sourcePath);
+            var destPath = Path.Combine(assetsDir, destFileName);
 
             if (!File.Exists(destPath))
                 File.Copy(sourcePath, destPath);

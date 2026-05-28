@@ -7,10 +7,6 @@
              x:Class="OceanStock.Views.RegisterView"
              x:DataType="vm:RegisterViewModel">
 
-    <Design.DataContext>
-        <vm:RegisterViewModel />
-    </Design.DataContext>
-
     <Border Padding="20">
         <StackPanel Spacing="10" MaxWidth="400" HorizontalAlignment="Center">
 

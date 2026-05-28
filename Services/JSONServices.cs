@@ -10,10 +10,7 @@ namespace OceanStock.Services;
 
 public class JSONServices
 {
-    private static readonly HttpClient _httpClient = new HttpClient(new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-    });
+    private static readonly HttpClient _httpClient = new HttpClient();
 
     private const string BaseUrl = "http://185.157.245.38:8080/json";
 

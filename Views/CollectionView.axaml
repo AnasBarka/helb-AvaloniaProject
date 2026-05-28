@@ -1,13 +1,10 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:OceanStock.ViewModels"
+             xmlns:models="using:OceanStock.Models"
              x:Class="OceanStock.Views.CollectionView"
              x:DataType="vm:CollectionViewModel"
              x:Name="Collection">
-
-    <Design.DataContext>
-        <vm:CollectionViewModel />
-    </Design.DataContext>
 
     <Border Margin="20"
             Background="#F0F8FF"
@@ -31,7 +28,7 @@
                          Background="Transparent">
 
                     <ListBox.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:ProductFish">
 
                             <Border Background="White"
                                     CornerRadius="18"
@@ -81,7 +78,7 @@
                                             CornerRadius="10"
                                             Background="#00B4D8"
                                             Foreground="White"
-                                            Command="{Binding DataContext.FromParentCommand, ElementName=Collection}"
+                                            Command="{Binding #Collection.((vm:CollectionViewModel)DataContext).FromParentCommand}"
                                             CommandParameter="{Binding Id}"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center">

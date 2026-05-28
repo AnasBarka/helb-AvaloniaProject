@@ -8,10 +8,13 @@ namespace OceanStock.Services;
 
 public class DatabaseServices
 {
+    private static readonly Lazy<DatabaseServices> _instance = new(() => new DatabaseServices());
+    public static DatabaseServices Instance => _instance.Value;
+
     private readonly IMongoCollection<ProductFish> _productFish;
     private readonly IMongoCollection<User> _users;
 
-    public DatabaseServices()
+    private DatabaseServices()
     {
         const string connectionUri = "mongodb://Meeeee:IAmTheBest@185.157.245.38:443/";
 

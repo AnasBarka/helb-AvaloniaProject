@@ -17,7 +17,6 @@ namespace OceanStock.ViewModels;
 public partial class AddFishViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _mainVM;
-    private readonly JSONServices _jsonService;
     private readonly ScannerManager _scanner = new();
     private string _scanBuffer = "";
 
@@ -44,10 +43,10 @@ public partial class AddFishViewModel : ViewModelBase
     public AddFishViewModel(MainWindowViewModel mainVM)
     {
         _mainVM = mainVM;
-        _jsonService = new JSONServices();
 
-        _scanner.OpenPort();
+        // Ouverture du port sans bloquer le thread UI
         _scanner.SerialBuffer.Changed += OnScannerData;
+        _ = _scanner.OpenPortAsynk();
     }
 
     private void OnScannerData(object? sender, EventArgs e)

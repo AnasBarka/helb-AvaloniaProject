@@ -52,8 +52,8 @@ public class CsvServices
         // Si le fichier est vide ou n'a pas de donnees, on arrete tout de suite
         if (lines.Count < 2)
         {
-            await DialogHelper.ShowError(_topLevel as Window,
-                "Le fichier CSV est vide ou ne contient pas de donnees.");
+            if (_topLevel is Window win1)
+                await DialogHelper.ShowError(win1, "Le fichier CSV est vide ou ne contient pas de données.");
             return list;
         }
 
@@ -182,8 +182,9 @@ public class CsvServices
         // Si des erreurs ont ete rencontrees, on les affiche toutes ensemble a la fin
         if (errors.Count > 0)
         {
-            string message = $"{errors.Count} erreur(s) detectee(s) :\n\n" + string.Join("\n", errors);
-            await DialogHelper.ShowError(_topLevel as Window, message);
+            string message = $"{errors.Count} erreur(s) détectée(s) :\n\n" + string.Join("\n", errors);
+            if (_topLevel is Window win2)
+                await DialogHelper.ShowError(win2, message);
         }
 
         return list;

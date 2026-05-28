@@ -4,10 +4,6 @@
              x:Class="OceanStock.Views.ImportPreviewView"
              x:DataType="vm:ImportPreviewViewModel">
 
-    <Design.DataContext>
-        <vm:ImportPreviewViewModel />
-    </Design.DataContext>
-
     <ScrollViewer VerticalScrollBarVisibility="Auto">
 
         <StackPanel Margin="20"

@@ -15,87 +15,105 @@ public class ScannerManager : IDisposable
 
     public void OpenPort()
     {
+        // Si le port est déjà ouvert, inutile de recommencer
+        if (mySerialPort?.IsOpen == true)
+            return;
+
+        // Nettoyage de l'éventuel port précédent (fermé ou en erreur)
         if (mySerialPort != null)
         {
-            try
+            try { mySerialPort.Dispose(); }
+            catch { }
+            mySerialPort = null;
+        }
+
+        portDetected = null;
+
+        if (OperatingSystem.IsWindows())
+        {
+            // Recherche du scanner via le PID USB dans le registre WMI
+            var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'");
+            foreach (ManagementObject queryObj in searcher.Get())
             {
-                if (mySerialPort.IsOpen) mySerialPort.Close();
-                mySerialPort.Dispose();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Erreur fermeture port: " + ex.Message);
-            }
-            finally
-            {
-                mySerialPort = null;
+                string pnpId = queryObj["PNPDeviceID"]?.ToString() ?? "";
+                string nom   = queryObj["Name"]?.ToString() ?? "";
+
+                if (pnpId.Contains("PID_A4A7", StringComparison.OrdinalIgnoreCase))
+                {
+                    int debut = nom.LastIndexOf("COM");
+                    int fin   = nom.LastIndexOf(")");
+                    if (debut != -1 && fin != -1)
+                    {
+                        portDetected = nom.Substring(debut, fin - debut);
+                        break;
+                    }
+                }
             }
         }
-        else
+        else if (OperatingSystem.IsLinux())
         {
-            if (OperatingSystem.IsWindows())
+            // Lecture du PID USB via sysfs (le dossier /dev/serial/by-id contient des symlinks
+            // dont le nom ne reflète pas le PID — il faut lire idProduct dans sysfs)
+            const string sysTty = "/sys/class/tty";
+            if (Directory.Exists(sysTty))
             {
-                var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'");
-
-                foreach (ManagementObject queryObj in searcher.Get())
+                foreach (var ttyDir in Directory.GetDirectories(sysTty))
                 {
-                    string id = queryObj["PNPDeviceID"]?.ToString() ?? "";
-                    string nom = queryObj["Name"]?.ToString() ?? "";
-
-                    if (id.Contains("PID_A4A7"))
+                    try
                     {
-                        int debut = nom.LastIndexOf("COM");
-                        int fin = nom.LastIndexOf(")");
+                        string deviceLink = Path.Combine(ttyDir, "device");
+                        if (!Directory.Exists(deviceLink))
+                            continue;
 
-                        if (debut != -1 && fin != -1)
+                        // Résolution du lien symbolique vers le répertoire de l'interface USB
+                        var resolved = new DirectoryInfo(deviceLink).ResolveLinkTarget(returnFinalTarget: true);
+                        if (resolved == null)
+                            continue;
+
+                        // idProduct se trouve dans le répertoire parent (device USB, pas l'interface)
+                        string usbDevDir = Path.GetDirectoryName(resolved.FullName) ?? "";
+                        string pidFile   = Path.Combine(usbDevDir, "idProduct");
+
+                        if (File.Exists(pidFile))
                         {
-                            portDetected = nom.Substring(debut, fin - debut);
-                            break;
+                            string pid = File.ReadAllText(pidFile).Trim();
+                            if (pid.Equals("a4a7", StringComparison.OrdinalIgnoreCase))
+                            {
+                                portDetected = "/dev/" + Path.GetFileName(ttyDir);
+                                break;
+                            }
                         }
                     }
+                    catch { /* port inaccessible ou chemin inexistant */ }
                 }
             }
-            else if (OperatingSystem.IsLinux())
-            {
-                string byId = "/dev/serial/by-id";
+        }
 
-                if (Directory.Exists(byId))
-                {
-                    foreach (var device in Directory.GetFiles(byId))
-                    {
-                        if (device.Contains("A4A7", StringComparison.OrdinalIgnoreCase))
-                        {
-                            portDetected = Path.GetFullPath(device);
-                            break;
-                        }
-                    }
-                }
+        if (portDetected != null)
+        {
+            mySerialPort = new SerialPort
+            {
+                PortName  = portDetected,
+                BaudRate  = 9600,
+                DataBits  = 8,
+                Parity    = Parity.None,
+                StopBits  = StopBits.One,
+                Handshake = Handshake.None,
+                ReadTimeout  = 10000,
+                WriteTimeout = 10000
+            };
+
+            mySerialPort.DataReceived += DataHandler;
+
+            try
+            {
+                mySerialPort.Open();
             }
-
-            if (portDetected != null)
+            catch
             {
-                mySerialPort = new SerialPort
-                {
-                    PortName = portDetected,
-                    BaudRate = 9600,
-                    DataBits = 8,
-                    Parity = Parity.None,
-                    StopBits = StopBits.One,
-                    Handshake = Handshake.None,
-                    ReadTimeout = 10000,
-                    WriteTimeout = 10000
-                };
-
-                mySerialPort.DataReceived += DataHandler;
-
-                try
-                {
-                    mySerialPort.Open();
-                }
-                catch
-                {
-                    // Port détecté mais inaccessible (ex : déjà utilisé)
-                }
+                // Port détecté mais inaccessible (ex : permissions, déjà utilisé par autre process)
+                mySerialPort.Dispose();
+                mySerialPort = null;
             }
         }
     }

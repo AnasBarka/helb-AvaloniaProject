@@ -12,6 +12,9 @@ public partial class CollectionDetailsViewModel : ViewModelBase
     private ProductFish _myFish;
     private readonly MainWindowViewModel _mainVM;
 
+    public bool CanModify =>
+        MyFish.IdOwner == Session.CurrentUser?.Id || Session.CurrentUser?.IsAdmin == true;
+
     public CollectionDetailsViewModel(string id, MainWindowViewModel mainVM)
     {
         _mainVM = mainVM;

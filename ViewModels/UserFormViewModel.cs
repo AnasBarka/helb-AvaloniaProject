@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ public partial class UserFormViewModel : ViewModelBase
     public UserFormViewModel(MainWindowViewModel mainVM, User? user)
     {
         _mainVM = mainVM;
-        _db = new DatabaseServices();
+        _db = DatabaseServices.Instance;
 
         if (user != null)
         {
@@ -50,45 +51,63 @@ public partial class UserFormViewModel : ViewModelBase
         }
     }
 
+    [ObservableProperty] private string? errorMessage;
+
     [RelayCommand]
     private async Task Save()
     {
-        if (!_isEdit)
+        ErrorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName) || string.IsNullOrWhiteSpace(Email))
         {
-            if (string.IsNullOrWhiteSpace(Password))
-                return;
-
-            var user = new User
-            {
-                FirstName = FirstName,
-                LastName = LastName,
-                Email = Email,
-                IsAdmin = SelectedRole.Value,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password)
-            };
-
-            await _db.CreateUserAsync(user);
-        }
-        else
-        {
-            string finalPasswordHash = string.IsNullOrWhiteSpace(Password)
-                ? _existingPasswordHash
-                : BCrypt.Net.BCrypt.HashPassword(Password);
-
-            var user = new User
-            {
-                Id = _id,
-                FirstName = FirstName,
-                LastName = LastName,
-                Email = Email,
-                IsAdmin = SelectedRole.Value,
-                PasswordHash = finalPasswordHash
-            };
-
-            await _db.UpdateUserAsync(user);
+            ErrorMessage = "Prénom, nom et email sont obligatoires.";
+            return;
         }
 
-        _mainVM.CurrentPage = new AdminViewModel(_mainVM);
+        if (!_isEdit && string.IsNullOrWhiteSpace(Password))
+        {
+            ErrorMessage = "Le mot de passe est obligatoire pour un nouvel utilisateur.";
+            return;
+        }
+
+        try
+        {
+            if (!_isEdit)
+            {
+                var user = new User
+                {
+                    FirstName    = FirstName.Trim(),
+                    LastName     = LastName.Trim(),
+                    Email        = Email.Trim(),
+                    IsAdmin      = SelectedRole.Value,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password)
+                };
+                await _db.CreateUserAsync(user);
+            }
+            else
+            {
+                string finalHash = string.IsNullOrWhiteSpace(Password)
+                    ? _existingPasswordHash
+                    : BCrypt.Net.BCrypt.HashPassword(Password);
+
+                var user = new User
+                {
+                    Id           = _id,
+                    FirstName    = FirstName.Trim(),
+                    LastName     = LastName.Trim(),
+                    Email        = Email.Trim(),
+                    IsAdmin      = SelectedRole.Value,
+                    PasswordHash = finalHash
+                };
+                await _db.UpdateUserAsync(user);
+            }
+
+            _mainVM.CurrentPage = new AdminViewModel(_mainVM);
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "Erreur lors de la sauvegarde. Vérifiez votre connexion.";
+        }
     }
 
     [RelayCommand]

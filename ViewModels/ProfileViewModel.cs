@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -21,7 +22,7 @@ public partial class ProfileViewModel : ViewModelBase
     public ProfileViewModel(MainWindowViewModel mainVM)
     {
         _mainVM = mainVM;
-        _db = new DatabaseServices();
+        _db = DatabaseServices.Instance;
         FirstName = Session.CurrentUser!.FirstName;
         LastName = Session.CurrentUser!.LastName;
     }
@@ -38,17 +39,29 @@ public partial class ProfileViewModel : ViewModelBase
             return;
         }
 
-        var user = Session.CurrentUser!;
-        user.FirstName = FirstName.Trim();
-        user.LastName = LastName.Trim();
+        if (!string.IsNullOrWhiteSpace(NewPassword) && NewPassword.Length < 6)
+        {
+            ErrorMessage = "Le nouveau mot de passe doit contenir au moins 6 caractères.";
+            return;
+        }
 
-        if (!string.IsNullOrWhiteSpace(NewPassword))
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(NewPassword);
+        try
+        {
+            var user = Session.CurrentUser!;
+            user.FirstName = FirstName.Trim();
+            user.LastName  = LastName.Trim();
 
-        await _db.UpdateUserAsync(user);
-        Session.CurrentUser = user;
+            if (!string.IsNullOrWhiteSpace(NewPassword))
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(NewPassword);
 
-        SuccessMessage = "Profil mis à jour avec succès.";
+            await _db.UpdateUserAsync(user);
+            Session.CurrentUser = user;
+            SuccessMessage = "Profil mis à jour avec succès.";
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "Erreur lors de la mise à jour. Vérifiez votre connexion.";
+        }
     }
 
     [RelayCommand]

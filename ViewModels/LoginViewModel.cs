@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,7 +18,7 @@ public partial class LoginViewModel : ViewModelBase
     public LoginViewModel(MainWindowViewModel mainVM)
     {
         _mainVM = mainVM;
-        _db = new DatabaseServices();
+        _db = DatabaseServices.Instance;
     }
 
     [RelayCommand]
@@ -25,17 +26,30 @@ public partial class LoginViewModel : ViewModelBase
     {
         ErrorMessage = null;
 
-        var user = await _db.LoginAsync(Email, Password);
-
-        if (user != null)
+        if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
         {
-            Session.CurrentUser = user;
-            _mainVM.RefreshIsAdmin();
-            _mainVM.BackToMainCommand.Execute(null);
+            ErrorMessage = "Veuillez remplir tous les champs.";
+            return;
         }
-        else
+
+        try
         {
-            ErrorMessage = "Email ou mot de passe incorrect.";
+            var user = await _db.LoginAsync(Email.Trim(), Password);
+
+            if (user != null)
+            {
+                Session.CurrentUser = user;
+                _mainVM.RefreshIsAdmin();
+                _mainVM.BackToMainCommand.Execute(null);
+            }
+            else
+            {
+                ErrorMessage = "Email ou mot de passe incorrect.";
+            }
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "Impossible de contacter la base de données. Vérifiez votre connexion.";
         }
     }
 

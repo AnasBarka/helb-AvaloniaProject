@@ -67,52 +67,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task LoadDataFromServer()
     {
+        List<ProductFish> data;
+
         try
         {
-            var data = await _jsonService.GetProductsAsync();
-
-            MyGlobals.ProductsFish.Clear();
-
-            if (data.Count > 0)
-            {
-                foreach (var p in data)
-                {
-                    if (!string.IsNullOrWhiteSpace(p.PicturePath))
-                    {
-                        try
-                        {
-                            var diskPath = ImageHelper.EnsureInAssets(p.PicturePath, p.Id);
-                            if (!string.IsNullOrEmpty(diskPath) && File.Exists(diskPath))
-                            {
-                                p.PicturePath = diskPath;
-                                p.Picture = new Bitmap(diskPath);
-                            }
-                            else
-                            {
-                                p.Picture = null;
-                            }
-                        }
-                        catch
-                        {
-                            p.Picture = null;
-                        }
-                    }
-
-                    MyGlobals.ProductsFish.Add(p);
-                }
-            }
-            else
-            {
-                MyGlobals.ProductsFish.Add(new ProductFish
-                {
-                    Id = "N/A",
-                    Name = "Aucun poisson disponible",
-                    Group = "Serveur vide",
-                    Stock = 0,
-                    Price = 0,
-                    Description = "Aucune donnée disponible"
-                });
-            }
+            data = await _jsonService.GetProductsAsync();
         }
         catch (HttpRequestException)
         {
@@ -129,23 +88,91 @@ public partial class MainWindowViewModel : ViewModelBase
                 Stock = 0,
                 Price = 0
             });
+            return;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Erreur chargement JSON : " + ex.Message);
+            return;
         }
 
-        var db = new DatabaseServices();
+        if (data.Count == 0)
+        {
+            MyGlobals.ProductsFish.Clear();
+            MyGlobals.ProductsFish.Add(new ProductFish
+            {
+                Id = "N/A",
+                Name = "Aucun poisson disponible",
+                Group = "Serveur vide",
+                Stock = 0,
+                Price = 0,
+                Description = "Aucune donnée disponible"
+            });
+            return;
+        }
 
-        foreach (var fish in MyGlobals.ProductsFish)
+        // Étape 1 : chargement des images (sans toucher à MyGlobals)
+        bool pathsUpdated = false;
+
+        foreach (var p in data)
+        {
+            if (!string.IsNullOrWhiteSpace(p.PicturePath))
+            {
+                try
+                {
+                    var diskPath = ImageHelper.EnsureInAssets(p.PicturePath, p.Id);
+                    if (!string.IsNullOrEmpty(diskPath) && File.Exists(diskPath))
+                    {
+                        if (p.PicturePath != diskPath)
+                        {
+                            p.PicturePath = diskPath;
+                            pathsUpdated = true;
+                        }
+                        p.Picture = new Bitmap(diskPath);
+                    }
+                    else
+                    {
+                        p.Picture = null;
+                    }
+                }
+                catch
+                {
+                    p.Picture = null;
+                }
+            }
+        }
+
+        if (pathsUpdated)
+        {
+            try { await _jsonService.SetProductsAsync(data); }
+            catch { /* non bloquant */ }
+        }
+
+        // Étape 2 : sync MongoDB et récupération IdOwner AVANT d'afficher
+        var db = DatabaseServices.Instance;
+
+        foreach (var fish in data)
         {
             var existing = await db.GetFishByCustomIdAsync(fish.Id);
 
             if (existing == null)
+            {
                 await db.CreateFishAsync(fish);
+            }
             else
+            {
+                if (string.IsNullOrWhiteSpace(fish.IdOwner))
+                    fish.IdOwner = existing.IdOwner;
+
                 await db.UpdateFishAsync(fish);
+            }
         }
+
+        // Étape 3 : ajout dans MyGlobals SEULEMENT après que IdOwner est correct
+        MyGlobals.ProductsFish.Clear();
+
+        foreach (var p in data)
+            MyGlobals.ProductsFish.Add(p);
     }
 
     [RelayCommand]
@@ -168,7 +195,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 "Erreur inattendue lors de la sauvegarde : " + ex.Message);
         }
 
-        var db = new DatabaseServices();
+        var db = DatabaseServices.Instance;
 
         foreach (var fish in MyGlobals.ProductsFish)
         {

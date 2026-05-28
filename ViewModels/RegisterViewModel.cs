@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,7 +21,7 @@ public partial class RegisterViewModel : ViewModelBase
     public RegisterViewModel(MainWindowViewModel mainVM)
     {
         _mainVM = mainVM;
-        _db = new DatabaseServices();
+        _db = DatabaseServices.Instance;
     }
 
     [RelayCommand]
@@ -35,24 +36,37 @@ public partial class RegisterViewModel : ViewModelBase
             return;
         }
 
-        var existing = await _db.GetUserByEmailAsync(Email.Trim());
-        if (existing != null)
+        if (Password.Length < 6)
         {
-            ErrorMessage = "Un compte avec cet email existe déjà.";
+            ErrorMessage = "Le mot de passe doit contenir au moins 6 caractères.";
             return;
         }
 
-        var user = new User
+        try
         {
-            FirstName = FirstName.Trim(),
-            LastName = LastName.Trim(),
-            Email = Email.Trim(),
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password),
-            IsAdmin = false
-        };
+            var existing = await _db.GetUserByEmailAsync(Email.Trim());
+            if (existing != null)
+            {
+                ErrorMessage = "Un compte avec cet email existe déjà.";
+                return;
+            }
 
-        await _db.CreateUserAsync(user);
-        _mainVM.CurrentPage = new LoginViewModel(_mainVM);
+            var user = new User
+            {
+                FirstName = FirstName.Trim(),
+                LastName  = LastName.Trim(),
+                Email     = Email.Trim(),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password),
+                IsAdmin = false
+            };
+
+            await _db.CreateUserAsync(user);
+            _mainVM.CurrentPage = new LoginViewModel(_mainVM);
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "Impossible de contacter la base de données. Vérifiez votre connexion.";
+        }
     }
 
     [RelayCommand]
